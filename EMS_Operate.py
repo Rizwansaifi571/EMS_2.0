@@ -1,9 +1,30 @@
 import tkinter as tk
+from tkinter import Frame
 from tkinter import ttk, filedialog, messagebox
 from PIL import Image, ImageTk
 import pandas as pd
 import openpyxl
 from docx import Document
+
+class DataCleaningWindow:
+    def __init__(self, root, original_file_path):
+        self.root = root
+        self.original_file_path = original_file_path
+
+        self.data_cleaning_frame = tk.Frame(root, bg="#ecf0f1", height=250, bd=1, relief=tk.SOLID)
+        self.data_cleaning_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        # Add buttons for Data Cleaning operations
+        data_cleaning_operations = ["Operation 1", "Operation 2", "Operation 3"]
+        for operation in data_cleaning_operations:
+            operation_button = tk.Button(self.data_cleaning_frame, text=operation, command=lambda op=operation: self.perform_data_cleaning_operation(op),
+                                         bg="#273746", fg="#ecf0f1", width=17, bd=1, relief=tk.RAISED)
+            operation_button.pack(side=tk.LEFT, padx=10, pady=5)
+
+    def perform_data_cleaning_operation(self, operation):
+        # Implement the logic for each data cleaning operation
+        messagebox.showinfo("Data Cleaning Operation", f"Performing Data Cleaning Operation: {operation} on file: {self.original_file_path}")
+
 
 class EmployeeManagementSystem:
     def __init__(self, root):
@@ -15,18 +36,29 @@ class EmployeeManagementSystem:
         self.header_frame.pack(fill=tk.X)
 
         header_label = tk.Label(self.header_frame, text="EMS - A Business Intelligence Tool", font=("Arial", 20, "bold"), bg="#273746", fg="white")
-        header_label.pack(pady=10)
+        header_label.pack(pady=15)
 
         # Main Part Frame
-        self.main_frame = tk.Frame(root, bg="#ecf0f1", height=400, bd=1, relief=tk.SOLID)
-        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+        self.main_frame = tk.Frame(root, bg="#ecf0f1", height=250, bd=1, relief=tk.SOLID)
+        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
         # Skyblue Left Frame
         self.menu_frame = tk.Frame(self.main_frame, bg="darkgrey", width=150, bd=1, relief=tk.SOLID)
-        self.menu_frame.pack(fill=tk.Y, side=tk.LEFT, padx=(0, 10), pady=20)  # Added pady to give more space
+        self.menu_frame.pack(fill=tk.Y, side=tk.LEFT)
+
+         # Bottom Frame
+        self.bottom_frame = Frame(self.main_frame, bg="#ecf0f1", bd=1, relief=tk.SOLID)
+        self.bottom_frame.pack(fill=tk.X)
+
+        # Buttons for Data Operations
+        data_operations = ["DATA CLEANING", "DATA INFORMATION", "DATA VISUALIZATION", "STATISTIC OF DATA"]
+        for operation in data_operations:
+            operation_button = tk.Button(self.bottom_frame, text=operation, command=lambda op=operation: self.perform_operation(op),
+                                         bg="#273746", fg="#ecf0f1", width=17, bd=1, relief=tk.RAISED)
+            operation_button.pack(side=tk.LEFT, padx=10, pady=5)
 
         # Heading for File Upload
-        file_heading = tk.Label(self.menu_frame, text="Upload File", font=("Arial", 14, "bold"))
+        file_heading = tk.Label(self.menu_frame, text="Upload File", font=("Arial", 14, "bold"), bg="darkgrey", fg="white")
         file_heading.pack(pady=10)
 
         # Buttons for Different File Types
@@ -42,7 +74,7 @@ class EmployeeManagementSystem:
 
         # Treeview widget for tabular and non-tabular display
         self.treeview_frame = ttk.Frame(self.content_frame, style="Light.TFrame")
-        self.treeview_frame.pack(expand=True, fill=tk.BOTH, padx=20, pady=20)  # Added padding to give more space
+        self.treeview_frame.pack(expand=True, fill=tk.BOTH)
 
         self.treeview_style = ttk.Style()
         self.treeview_style.configure("Treeview", font=("Arial", 10), background="#ecf0f1", fieldbackground="#ecf0f1", foreground="#17202a")  # Set font and background color for Treeview widget
@@ -110,15 +142,44 @@ class EmployeeManagementSystem:
             self.footer_frame.configure(bg="#001f3f")
             self.toggle_theme_button.configure(image=self.dark_icon)
 
+    def perform_operation(self, operation):
+        # Define the actions for each button
+        if operation == "DATA CLEANING":
+            self.open_data_cleaning_window()
+        elif operation == "DATA INFORMATION":
+            # Add your data information logic here
+            self.data_information()
+        elif operation == "DATA VISUALIZATION":
+            # Add your data visualization logic here
+            self.data_visualization()
+        elif operation == "STATISTIC OF DATA":
+            # Add your statistic of data logic here
+            self.statistic_of_data()
+
+    def open_data_cleaning_window(self):
+        if self.original_file_path:
+            data_cleaning_window = tk.Toplevel(self.root)
+            data_cleaning_window.title("Data Cleaning Operations")
+            data_cleaning_window.geometry("400x200")
+            data_cleaning_window.resizable(False, False)
+
+            # Pass the original file path to the DataCleaningWindow
+            data_cleaning_app = DataCleaningWindow(data_cleaning_window, self.original_file_path)
+        else:
+            messagebox.showwarning("No File Selected", "Please select a file before performing data cleaning.")
+
     def open_file(self, file_type):
         file_extension = file_type.lower()
         file_path = filedialog.askopenfilename(title=f"Select {file_type} File", filetypes=[(f"{file_type} files", f"*.{file_extension}")])
         if file_path:
             print(f"Opening {file_type} file: {file_path}")
+            self.original_file_path = file_path  # Store the original file path
             try:
                 self.display_data(file_path, file_type)
             except Exception as e:
                 messagebox.showerror("Error", f"Error reading {file_type} file: {e}")
+
+
 
     def display_data(self, file_path, file_type):
         if file_type.lower() == 'csv':
