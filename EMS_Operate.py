@@ -6,6 +6,7 @@ import pandas as pd
 import openpyxl
 from docx import Document
 from scipy.stats import mode as scipy_mode
+from pandasgui import show
 
 class EmployeeManagementSystem:
     def __init__(self, root):
@@ -408,8 +409,34 @@ class EmployeeManagementSystem:
         else:
             messagebox.showwarning("No Data", "Please open a file first to load data.")
 
-    def data_information(self):
-        messagebox.showinfo("Data Information", "Displaying Data Information")
+    def show_data_info(self):
+        if self.current_data is not None and isinstance(self.current_data, pd.DataFrame):
+            information_window = tk.Toplevel(self.root)
+            information_window.title("Data Information - Displaying Data Information")
+            information_window.configure(bg="#ecf0f1")
+
+            # Header Frame of data_information
+            header_frame_info_data = tk.Frame(information_window, bg="#273746", height=70, bd=1, relief=tk.SOLID)
+            header_frame_info_data.pack(fill=tk.X)
+
+            header_label_info_data = tk.Label(header_frame_info_data, text="DATA INFORMATION", font=("Arial", 20, "bold"), bg="#273746", fg="white")
+            header_label_info_data.pack(pady=15)
+
+            # Main Part Frame of data_information
+            main_frame_info_data = tk.Frame(information_window, bg="#ecf0f1", height=250, bd=1, relief=tk.SOLID)
+            main_frame_info_data.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+            # Skyblue Left Frame of data_information
+            menu_frame_info_data = tk.Frame(main_frame_info_data, bg="darkgrey", width=150, bd=1, relief=tk.SOLID)
+            menu_frame_info_data.pack(fill=tk.Y, side=tk.LEFT)
+
+            # Display data information
+            data_info_label = tk.Label(menu_frame_info_data, text=self.current_data.info(), bg="darkgrey", fg="white")
+            data_info_label.pack(pady=10)
+        else:
+            messagebox.showwarning("No Data", "Please open a file first to load data.")
+
+
 
     def data_visualization(self):
         messagebox.showinfo("Data Visualization", "Creating Data Visualization")
