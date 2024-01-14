@@ -35,8 +35,11 @@ class EmployeeManagementSystem:
         # Buttons for Data Operations
         data_operations = ["DATA CLEANING", "DATA INFORMATION", "DATA VISUALIZATION", "STATISTIC OF DATA"]
         for operation in data_operations:
-            operation_button = tk.Button(self.bottom_frame, text=operation, command=lambda op=operation: self.perform_operation(op),
-                                         bg="#273746", fg="#ecf0f1", width=17, bd=1, relief=tk.RAISED)
+            if operation == "DATA INFORMATION":
+                operation_button = tk.Button(self.bottom_frame, text=operation, command=self.show_data_info, bg="#273746", fg="#ecf0f1", width=17, bd=1, relief=tk.RAISED)
+            else:
+                operation_button = tk.Button(self.bottom_frame, text=operation, command=lambda op=operation: self.perform_operation(op),
+                                            bg="#273746", fg="#ecf0f1", width=17, bd=1, relief=tk.RAISED)
             operation_button.pack(side=tk.LEFT, padx=10, pady=5)
 
         # Download Button
@@ -148,6 +151,8 @@ class EmployeeManagementSystem:
             self.data_visualization()
         elif operation == "STATISTIC OF DATA":
             self.statistic_of_data()
+
+    
 
     def data_cleaning(self):
         cleaning_window = tk.Toplevel(self.root)
@@ -431,8 +436,12 @@ class EmployeeManagementSystem:
             menu_frame_info_data.pack(fill=tk.Y, side=tk.LEFT)
 
             # Display data information
-            data_info_label = tk.Label(menu_frame_info_data, text=self.current_data.info(), bg="darkgrey", fg="white")
-            data_info_label.pack(pady=10)
+            data_info_text = tk.Text(menu_frame_info_data, wrap=tk.WORD, width=50, height=15, bg="darkgrey", fg="white")
+            data_info_text.pack(pady=10)
+
+            # Insert data information into the Text widget
+            data_info_text.insert(tk.END, self.current_data.info())
+
         else:
             messagebox.showwarning("No Data", "Please open a file first to load data.")
 
