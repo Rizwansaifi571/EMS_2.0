@@ -150,7 +150,7 @@ class EmployeeManagementSystem:
 
     def data_cleaning(self):
         cleaning_window = tk.Toplevel(self.root)
-        cleaning_window.title("Data Cleaning - Dealing with Empty Cells")
+        cleaning_window.title("Data Cleaning - Dealing with Empty Cells and Duplicates")
         cleaning_window.configure(bg="#ecf0f1")  # Background color for the cleaning window
 
         # Header Frame of data_cleaning
@@ -168,21 +168,63 @@ class EmployeeManagementSystem:
         self.menu_frame2 = tk.Frame(self.main_frame2, bg="darkgrey", width=150, bd=1, relief=tk.SOLID)
         self.menu_frame2.pack(fill=tk.Y, side=tk.LEFT)
 
-        remove_empty_cells_button = tk.Button(self.menu_frame2, text="Removing Rows of Empty Cells ", command=self.remove_empty_cells, bg="grey", fg="white")
+        remove_empty_cells_button = tk.Button(self.menu_frame2, text="Removing Rows of Empty Cells", command=self.remove_empty_cells, bg="grey", fg="white")
         remove_empty_cells_button.pack(pady=10)
 
         replace_empty_values_button = tk.Button(self.menu_frame2, text="Replace Empty Values", command=self.replace_empty_values, bg="grey", fg="white")
         replace_empty_values_button.pack(pady=10)
 
-        replace_using_mean_button = tk.Button(self.menu_frame2, text="Replacing Empty Cells Using Mean", command=self.replace_using_mean, bg="grey", fg="white")
+        replace_using_mean_button = tk.Button(self.menu_frame2, text="Replace Empty Cells Using Mean", command=self.replace_using_mean, bg="grey", fg="white")
         replace_using_mean_button.pack(pady=10)
 
-        replace_using_median_button = tk.Button(self.menu_frame2, text="Replacing Empty Cells Using Median", command=self.replace_using_median, bg="grey", fg="white")
+        replace_using_median_button = tk.Button(self.menu_frame2, text="Replace Empty Cells Using Median", command=self.replace_using_median, bg="grey", fg="white")
         replace_using_median_button.pack(pady=10)
 
-        replace_using_mode_button = tk.Button(self.menu_frame2, text="Replacing Empty Cells Using Mode", command=self.replace_using_mode, bg="grey", fg="white")
+        replace_using_mode_button = tk.Button(self.menu_frame2, text="Replace Empty Cells Using Mode", command=self.replace_using_mode, bg="grey", fg="white")
         replace_using_mode_button.pack(pady=10)
 
+        remove_duplicates_button = tk.Button(self.menu_frame2, text="Remove Duplicates", command=self.remove_duplicates, bg="grey", fg="white")
+        remove_duplicates_button.pack(pady=10)
+
+        correct_formats_button = tk.Button(self.menu_frame2, text="Correct Wrong Formats", command=self.correct_wrong_formats, bg="grey", fg="white")
+        correct_formats_button.pack(pady=10)
+
+    def remove_duplicates(self):
+        if self.current_data is not None and isinstance(self.current_data, pd.DataFrame):
+            try:
+                # Remove duplicates
+                self.current_data = self.current_data.drop_duplicates()
+
+                # Refresh the Treeview
+                self.display_in_treeview(self.current_data)
+
+                messagebox.showinfo("Remove Duplicates", "Duplicate rows removed successfully.")
+            except Exception as e:
+                messagebox.showerror("Error", f"Error removing duplicates: {e}")
+        else:
+            messagebox.showwarning("No Data", "Please open a file first to load data.")
+
+    def correct_wrong_formats(self):
+        if self.current_data is not None and isinstance(self.current_data, pd.DataFrame):
+            try:
+                # Specify the columns you want to correct (modify this based on your requirements)
+                date_columns = ["DateColumn1", "DateColumn2"]
+
+                # Correct the format of date columns
+                for column in date_columns:
+                    if column in self.current_data.columns:
+                        self.current_data[column] = pd.to_datetime(self.current_data[column], errors='coerce').dt.strftime('%d-%b-%y')
+
+                # Update the Treeview
+                self.display_in_treeview(self.current_data)
+
+                messagebox.showinfo("Correct Formats", "Wrong formats corrected successfully.")
+            except Exception as e:
+                messagebox.showerror("Error", f"Error correcting formats: {e}")
+        else:
+            messagebox.showwarning("No Data", "Please open a file first to load data.")
+
+        
     def remove_empty_cells(self):
         if self.current_data is not None and isinstance(self.current_data, pd.DataFrame):
             # Ask the user for the column name
@@ -201,8 +243,6 @@ class EmployeeManagementSystem:
                 messagebox.showwarning("Invalid Input", "Please enter a valid column name.")
         else:
             messagebox.showwarning("No Data", "Please open a file first to load data.")
-
-
 
     def replace_empty_values(self):
         if self.current_data is not None and isinstance(self.current_data, pd.DataFrame):
