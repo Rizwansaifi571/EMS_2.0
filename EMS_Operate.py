@@ -13,6 +13,9 @@ class EmployeeManagementSystem:
         self.root = root
         self.theme = "light"  # Default theme
 
+        # Add file_path attribute
+        self.file_path = None
+
         # Header Frame
         self.header_frame = tk.Frame(root, bg="#273746", height=70, bd=1, relief=tk.SOLID)
         self.header_frame.pack(fill=tk.X)
@@ -427,20 +430,40 @@ class EmployeeManagementSystem:
             header_label_info_data = tk.Label(header_frame_info_data, text="DATA INFORMATION", font=("Arial", 20, "bold"), bg="#273746", fg="white")
             header_label_info_data.pack(pady=15)
 
-            # Main Part Frame of data_information
-            main_frame_info_data = tk.Frame(information_window, bg="#ecf0f1", height=250, bd=1, relief=tk.SOLID)
-            main_frame_info_data.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+            # Display dataset information in a Treeview
+            info_treeview = ttk.Treeview(information_window, columns=("Column", "Data Type", "Unique Values", "Missing Values"), show="headings", selectmode="none")
+            info_treeview.heading("Column", text="Column")
+            info_treeview.heading("Data Type", text="Data Type")
+            info_treeview.heading("Unique Values", text="Unique Values")
+            info_treeview.heading("Missing Values", text="Missing Values")
+            
+            for col in self.current_data.columns:
+                data_type = str(self.current_data[col].dtype)
+                unique_values = len(self.current_data[col].unique())
+                missing_values = self.current_data[col].isnull().sum()
 
-            # Skyblue Left Frame of data_information
-            menu_frame_info_data = tk.Frame(main_frame_info_data, bg="darkgrey", width=150, bd=1, relief=tk.SOLID)
-            menu_frame_info_data.pack(fill=tk.Y, side=tk.LEFT)
+                info_treeview.insert("", "end", values=(col, data_type, unique_values, missing_values))
 
-            # Display data information
-            data_info_text = tk.Text(menu_frame_info_data, wrap=tk.WORD, width=50, height=15, bg="darkgrey", fg="white")
-            data_info_text.pack(pady=10)
+            info_treeview.pack(padx=10, pady=10)
 
-            # Insert data information into the Text widget
-            data_info_text.insert(tk.END, self.current_data.info())
+            # Display dataset information in a Treeview
+            info_treeview = ttk.Treeview(information_window, columns=("Info", "Value"), show="headings", selectmode="none")
+            info_treeview.heading("Info", text="Info")
+            info_treeview.heading("Value", text="Value")
+
+            # Add rows for each piece of information
+            info_treeview.insert("", "end", values=("Number of Rows", len(self.current_data)))
+            info_treeview.insert("", "end", values=("Number of Columns", len(self.current_data.columns)))
+            info_treeview.insert("", "end", values=("Column Names", ", ".join(self.current_data.columns)))
+            info_treeview.insert("", "end", values=("Data Types", "\n".join([f"{col}: {dtype}" for col, dtype in zip(self.current_data.columns, self.current_data.dtypes)])))
+            info_treeview.insert("", "end", values=("Summary Statistics", ""))
+
+            for col in self.current_data.columns:
+                summary_stats = self.current_data[col].describe().to_dict()
+                for stat, value in summary_stats.items():
+                    info_treeview.insert("", "end", values=(f"{col} - {stat.capitalize()}", value))
+
+            info_treeview.pack(padx=10, pady=10)
 
         else:
             messagebox.showwarning("No Data", "Please open a file first to load data.")
@@ -486,6 +509,9 @@ class EmployeeManagementSystem:
             self.current_data = pd.DataFrame({"Text Data": [text_data]})
 
         self.display_in_treeview(self.current_data)
+
+        # Update file_path attribute
+        self.file_path = file_path
 
     def display_in_treeview(self, df):
         # Clear existing data
