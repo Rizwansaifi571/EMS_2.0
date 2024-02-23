@@ -471,74 +471,104 @@ class EmployeeManagementSystem:
 
 
     def data_visualization_window(self):
+    # Create a new Toplevel window
         visualization_window = tk.Toplevel(self.root)
-        visualization_window.title("Data Visualization - Graphs and Plots")
-        visualization_window.configure(bg="#ecf0f1")
+        visualization_window.title("Data Visualization")
+        
+        # Apply the same theme as the parent window
+        if self.theme == "light":
+            visualization_window.configure(bg="#ecf0f1")
+        else:
+            visualization_window.configure(bg="#2c3e50")
+        
+        # Header Frame of data_visualization_window
+        header_frame_visualization = tk.Frame(visualization_window, bg="#273746", height=70, bd=1, relief=tk.SOLID)
+        header_frame_visualization.pack(fill=tk.X)
 
-        # Heading
-        heading_label = tk.Label(visualization_window, text="Graphs and Plots", font=("Arial", 16, "bold"), bg="#ecf0f1")
-        heading_label.pack(pady=10)
+        header_label_visualization = tk.Label(header_frame_visualization, text="Graphs and Plots", font=("Arial", 20, "bold"), bg="#273746", fg="white")
+        header_label_visualization.pack(pady=15)
 
-        # Three Horizontal Parts
-        top_frame = tk.Frame(visualization_window, bg="#ecf0f1")
-        top_frame.pack(fill=tk.X)
+        # Main Part Frame of data_visualization_window
+        main_frame_visualization = tk.Frame(visualization_window, bg="#ecf0f1", bd=1, relief=tk.SOLID)
+        main_frame_visualization.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-        middle_frame = tk.Frame(visualization_window, bg="#ecf0f1")
-        middle_frame.pack(fill=tk.X)
+        # Left Frame for displaying column names
+        left_frame = tk.Frame(main_frame_visualization, bg="#d5dbdb", bd=1, relief=tk.SOLID)
+        left_frame.pack(fill=tk.Y, side=tk.LEFT)
 
-        bottom_frame = tk.Frame(visualization_window, bg="#ecf0f1")
-        bottom_frame.pack(fill=tk.X)
+        # Get column names and their data types
+        measured_columns = []  # For columns with numeric data types
+        dimension_columns = []  # For columns with non-numeric data types
 
-        # First Part (Left)
-        left_frame = tk.Frame(top_frame, bg="#ecf0f1")
-        left_frame.pack(side=tk.LEFT, padx=10, pady=10)
+        for column in self.current_data.columns:
+            if pd.api.types.is_numeric_dtype(self.current_data[column]):
+                measured_columns.append(column)
+            else:
+                dimension_columns.append(column)
 
-        # Column Names
-        column_heading_label = tk.Label(left_frame, text="Column Names", font=("Arial", 12, "bold"), bg="#ecf0f1")
-        column_heading_label.pack()
+        # Measured column box
+        measured_label = tk.Label(left_frame, text="Measured Columns", font=("Arial", 12, "bold"), bg="#d5dbdb")
+        measured_label.pack(pady=5)
+        measured_listbox = tk.Listbox(left_frame, selectmode="multiple", height=10, exportselection=False)
+        for col in measured_columns:
+            measured_listbox.insert(tk.END, col)
+        measured_listbox.pack(pady=5, padx=10)
 
-        # Separate into measured and dimension type columns
-        measured_label = tk.Label(left_frame, text="Measured:", font=("Arial", 10, "bold"), bg="#ecf0f1")
-        measured_label.pack(anchor='w')
+        # Dimension column box
+        dimension_label = tk.Label(left_frame, text="Dimension Columns", font=("Arial", 12, "bold"), bg="#d5dbdb")
+        dimension_label.pack(pady=5)
+        dimension_listbox = tk.Listbox(left_frame, selectmode="multiple", height=10, exportselection=False)
+        for col in dimension_columns:
+            dimension_listbox.insert(tk.END, col)
+        dimension_listbox.pack(pady=5, padx=10)
 
-        measured_listbox = tk.Listbox(left_frame, selectmode=tk.MULTIPLE, exportselection=False)
-        measured_listbox.pack(expand=True, fill=tk.BOTH)
+        # Middle Frame for graph options
+        middle_frame = tk.Frame(main_frame_visualization, bg="#ecf0f1", bd=1, relief=tk.SOLID)
+        middle_frame.pack(fill=tk.Y, side=tk.LEFT)
 
-        dimension_label = tk.Label(left_frame, text="Dimension:", font=("Arial", 10, "bold"), bg="#ecf0f1")
-        dimension_label.pack(anchor='w')
+        # Right Frame for displaying graph and description
+        right_frame = tk.Frame(main_frame_visualization, bg="#ecf0f1", bd=1, relief=tk.SOLID)
+        right_frame.pack(fill=tk.BOTH, expand=True, side=tk.RIGHT)
 
-        dimension_listbox = tk.Listbox(left_frame, selectmode=tk.MULTIPLE, exportselection=False)
-        dimension_listbox.pack(expand=True, fill=tk.BOTH)
+        # Function to update the graph and description based on user selection
+        def update_graph_and_description():
+            pass  # Placeholder for the actual implementation
 
-        # Second Part (Middle)
-        middle_frame_label = tk.Label(middle_frame, text="Select Visualization Type", font=("Arial", 12, "bold"), bg="#ecf0f1")
-        middle_frame_label.pack()
+        # Bind selection event to the listboxes
+        measured_listbox.bind("<<ListboxSelect>>", lambda event: update_graph_and_description())
+        dimension_listbox.bind("<<ListboxSelect>>", lambda event: update_graph_and_description())
 
-        visualization_types = ["Bar Chart", "Histogram", "Scatter Plot", "Line Chart"]
-        selected_visualization_type = tk.StringVar()
-        selected_visualization_type.set(visualization_types[0])
+        # List of all possible graphs and plots (to be populated)
+        graph_options = []  # Example: ["Histogram", "Scatter Plot", "Box Plot", ...]
 
-        for visualization_type in visualization_types:
-            visualization_radio = tk.Radiobutton(middle_frame, text=visualization_type, variable=selected_visualization_type, value=visualization_type, bg="#ecf0f1")
-            visualization_radio.pack(anchor='w')
+        # Graph options label and listbox
+        graph_label = tk.Label(right_frame, text="Graph Options", font=("Arial", 12, "bold"), bg="#ecf0f1")
+        graph_label.pack(pady=5)
+        graph_listbox = tk.Listbox(right_frame, selectmode="single", height=10)
+        for option in graph_options:
+            graph_listbox.insert(tk.END, option)
+        graph_listbox.pack(pady=5, padx=10)
 
-        # Third Part (Right)
-        right_frame = tk.Frame(top_frame, bg="#ecf0f1")
-        right_frame.pack(side=tk.RIGHT, padx=10, pady=10, fill=tk.Y)
+        # Description label for the selected graph
+        description_label = tk.Label(right_frame, text="Graph Description", font=("Arial", 12, "bold"), bg="#ecf0f1")
+        description_label.pack(pady=5)
+        description_text = tk.Text(right_frame, height=10, wrap="word")
+        description_text.pack(pady=5, padx=10)
 
-        # Visualization Button
-        visualize_button = tk.Button(right_frame, text="Visualize", command=lambda: self.visualize_data(measured_listbox.curselection(), dimension_listbox.curselection(), selected_visualization_type.get()), bg="#273746", fg="#ecf0f1")
-        visualize_button.pack()
+        # Button to generate the graph
+        generate_button = tk.Button(right_frame, text="Generate Graph", command=update_graph_and_description)
+        generate_button.pack(pady=10)
 
-        # Close Button
-        close_button = tk.Button(bottom_frame, text="Close", command=visualization_window.destroy, bg="#273746", fg="#ecf0f1")
-        close_button.pack()
+        # Footer Frame
+        footer_frame = tk.Frame(visualization_window, bg="#273746", height=30, bd=1, relief=tk.SOLID)
+        footer_frame.pack(fill=tk.X, side=tk.BOTTOM)
 
-    def visualize_data(self, measured_indices, dimension_indices, visualization_type):
-        # Dummy visualization function
-        print("Visualization Type:", visualization_type)
-        print("Measured Indices:", measured_indices)
-        print("Dimension Indices:", dimension_indices)
+        footer_label = tk.Label(footer_frame, text="© 2024 EMS - A Business Intelligence Tool", font=("Arial", 8), bg="#273746", fg="white")
+        footer_label.pack(pady=5)
+
+        # Ensure the window remains open
+        visualization_window.mainloop()
+
 
 
 
