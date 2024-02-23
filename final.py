@@ -510,55 +510,54 @@ class EmployeeManagementSystem:
         measured_label = tk.Label(left_frame, text="Measured Columns", font=("Arial", 12, "bold"), bg="#d5dbdb")
         measured_label.pack(pady=5, padx=10, anchor=tk.W)
 
-        measured_listbox = tk.Listbox(left_frame, selectmode="multiple", height=10, exportselection=False, font=("Arial", 10))
-        for col in measured_columns:
-            measured_listbox.insert(tk.END, col)
-        measured_listbox.pack(pady=(0, 5), padx=10, fill=tk.BOTH, expand=True)
+        measured_frame = tk.Frame(left_frame, bg="#d5dbdb")
+        measured_frame.pack(pady=(0, 5), padx=10, fill=tk.BOTH, expand=True)
+
+        for i, col in enumerate(measured_columns):
+            measured_button = tk.Button(measured_frame, text=col, font=("Arial", 10), bd=0, relief=tk.FLAT)
+            measured_button.grid(row=i, column=0, sticky="ew")
 
         # Dimension column box
         dimension_label = tk.Label(left_frame, text="Dimension Columns", font=("Arial", 12, "bold"), bg="#d5dbdb")
         dimension_label.pack(pady=5, padx=10, anchor=tk.W)
 
-        dimension_listbox = tk.Listbox(left_frame, selectmode="multiple", height=10, exportselection=False, font=("Arial", 10))
-        for col in dimension_columns:
-            dimension_listbox.insert(tk.END, col)
-        dimension_listbox.pack(pady=(0, 5), padx=10, fill=tk.BOTH, expand=True)
+        dimension_frame = tk.Frame(left_frame, bg="#d5dbdb")
+        dimension_frame.pack(pady=(0, 5), padx=10, fill=tk.BOTH, expand=True)
+
+        for i, col in enumerate(dimension_columns):
+            dimension_button = tk.Button(dimension_frame, text=col, font=("Arial", 10), bd=0, relief=tk.FLAT)
+            dimension_button.grid(row=i, column=0, sticky="ew")
 
         # Middle Frame for graph options
         middle_frame = tk.Frame(main_frame_visualization, bg="#ecf0f1", bd=1, relief=tk.SOLID)
         middle_frame.pack(fill=tk.Y, side=tk.LEFT, padx=5, pady=10)
 
-        # Right Frame for displaying graph and description
+        # List of all possible graphs and plots
+        graph_options = ["Bar Plot", "Histogram", "Scatter Plot", "Box Plot", "Pie Chart"]
+
+        # Graph options label and listbox
+        graph_label = tk.Label(middle_frame, text="Graph Options", font=("Arial", 12, "bold"), bg="#ecf0f1")
+        graph_label.pack(pady=5)
+        graph_listbox = tk.Listbox(middle_frame, selectmode="single", height=len(graph_options))
+        for option in graph_options:
+            graph_listbox.insert(tk.END, option)
+        graph_listbox.pack(pady=5, padx=10)
+
+        # Right Frame for displaying graph description
         right_frame = tk.Frame(main_frame_visualization, bg="#ecf0f1", bd=1, relief=tk.SOLID)
-        right_frame.pack(fill=tk.BOTH, expand=True, side=tk.RIGHT, padx=(5, 10), pady=10)
+        right_frame.pack(fill=tk.BOTH, expand=True, side=tk.RIGHT)
+
+        # Description label for the selected graph
+        description_label = tk.Label(right_frame, text="Graph Description", font=("Arial", 12, "bold"), bg="#ecf0f1")
+        description_label.pack(pady=5)
+
+        description_text = tk.Text(right_frame, height=2, wrap="word")
+        description_text.pack(pady=5, padx=10)
 
         # Function to update the graph and description based on user selection
         def update_graph_and_description():
             pass  # Placeholder for the actual implementation
-
-        # Bind selection event to the listboxes
-        measured_listbox.bind("<<ListboxSelect>>", lambda event: update_graph_and_description())
-        dimension_listbox.bind("<<ListboxSelect>>", lambda event: update_graph_and_description())
-
-        # List of all possible graphs and plots (to be populated)
-        graph_options = []  # Example: ["Histogram", "Scatter Plot", "Box Plot", ...]
-
-        # Graph options label and listbox
-        graph_label = tk.Label(right_frame, text="Graph Options", font=("Arial", 12, "bold"), bg="#ecf0f1")
-        graph_label.pack(pady=5)
-
-        graph_listbox = tk.Listbox(right_frame, selectmode="single", height=10, font=("Arial", 10))
-        for option in graph_options:
-            graph_listbox.insert(tk.END, option)
-        graph_listbox.pack(pady=5, padx=10, fill=tk.BOTH, expand=True)
-
-        # Description label for the selected graph
-        description_label = tk.Label(right_frame, text="Graph Description", font=("Arial", 12, "bold"), bg="#ecf0f1")
-        description_label.pack(pady=5, padx=10, anchor=tk.W)
-
-        description_text = tk.Text(right_frame, height=10, wrap="word", font=("Arial", 10))
-        description_text.pack(pady=5, padx=10, fill=tk.BOTH, expand=True)
-
+        
         # Button to generate the graph
         generate_button = tk.Button(right_frame, text="Generate Graph", command=update_graph_and_description)
         generate_button.pack(pady=10)
