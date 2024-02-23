@@ -471,7 +471,7 @@ class EmployeeManagementSystem:
 
 
     def data_visualization_window(self):
-    # Create a new Toplevel window
+        # Create a new Toplevel window
         visualization_window = tk.Toplevel(self.root)
         visualization_window.title("Data Visualization")
         
@@ -494,7 +494,7 @@ class EmployeeManagementSystem:
 
         # Left Frame for displaying column names
         left_frame = tk.Frame(main_frame_visualization, bg="#d5dbdb", bd=1, relief=tk.SOLID)
-        left_frame.pack(fill=tk.Y, side=tk.LEFT)
+        left_frame.pack(fill=tk.Y, side=tk.LEFT, padx=(10, 5), pady=10)
 
         # Get column names and their data types
         measured_columns = []  # For columns with numeric data types
@@ -508,27 +508,29 @@ class EmployeeManagementSystem:
 
         # Measured column box
         measured_label = tk.Label(left_frame, text="Measured Columns", font=("Arial", 12, "bold"), bg="#d5dbdb")
-        measured_label.pack(pady=5)
-        measured_listbox = tk.Listbox(left_frame, selectmode="multiple", height=10, exportselection=False)
+        measured_label.pack(pady=5, padx=10, anchor=tk.W)
+
+        measured_listbox = tk.Listbox(left_frame, selectmode="multiple", height=10, exportselection=False, font=("Arial", 10))
         for col in measured_columns:
             measured_listbox.insert(tk.END, col)
-        measured_listbox.pack(pady=5, padx=10)
+        measured_listbox.pack(pady=(0, 5), padx=10, fill=tk.BOTH, expand=True)
 
         # Dimension column box
         dimension_label = tk.Label(left_frame, text="Dimension Columns", font=("Arial", 12, "bold"), bg="#d5dbdb")
-        dimension_label.pack(pady=5)
-        dimension_listbox = tk.Listbox(left_frame, selectmode="multiple", height=10, exportselection=False)
+        dimension_label.pack(pady=5, padx=10, anchor=tk.W)
+
+        dimension_listbox = tk.Listbox(left_frame, selectmode="multiple", height=10, exportselection=False, font=("Arial", 10))
         for col in dimension_columns:
             dimension_listbox.insert(tk.END, col)
-        dimension_listbox.pack(pady=5, padx=10)
+        dimension_listbox.pack(pady=(0, 5), padx=10, fill=tk.BOTH, expand=True)
 
         # Middle Frame for graph options
         middle_frame = tk.Frame(main_frame_visualization, bg="#ecf0f1", bd=1, relief=tk.SOLID)
-        middle_frame.pack(fill=tk.Y, side=tk.LEFT)
+        middle_frame.pack(fill=tk.Y, side=tk.LEFT, padx=5, pady=10)
 
         # Right Frame for displaying graph and description
         right_frame = tk.Frame(main_frame_visualization, bg="#ecf0f1", bd=1, relief=tk.SOLID)
-        right_frame.pack(fill=tk.BOTH, expand=True, side=tk.RIGHT)
+        right_frame.pack(fill=tk.BOTH, expand=True, side=tk.RIGHT, padx=(5, 10), pady=10)
 
         # Function to update the graph and description based on user selection
         def update_graph_and_description():
@@ -544,16 +546,18 @@ class EmployeeManagementSystem:
         # Graph options label and listbox
         graph_label = tk.Label(right_frame, text="Graph Options", font=("Arial", 12, "bold"), bg="#ecf0f1")
         graph_label.pack(pady=5)
-        graph_listbox = tk.Listbox(right_frame, selectmode="single", height=10)
+
+        graph_listbox = tk.Listbox(right_frame, selectmode="single", height=10, font=("Arial", 10))
         for option in graph_options:
             graph_listbox.insert(tk.END, option)
-        graph_listbox.pack(pady=5, padx=10)
+        graph_listbox.pack(pady=5, padx=10, fill=tk.BOTH, expand=True)
 
         # Description label for the selected graph
         description_label = tk.Label(right_frame, text="Graph Description", font=("Arial", 12, "bold"), bg="#ecf0f1")
-        description_label.pack(pady=5)
-        description_text = tk.Text(right_frame, height=10, wrap="word")
-        description_text.pack(pady=5, padx=10)
+        description_label.pack(pady=5, padx=10, anchor=tk.W)
+
+        description_text = tk.Text(right_frame, height=10, wrap="word", font=("Arial", 10))
+        description_text.pack(pady=5, padx=10, fill=tk.BOTH, expand=True)
 
         # Button to generate the graph
         generate_button = tk.Button(right_frame, text="Generate Graph", command=update_graph_and_description)
@@ -568,6 +572,7 @@ class EmployeeManagementSystem:
 
         # Ensure the window remains open
         visualization_window.mainloop()
+
 
 
 
