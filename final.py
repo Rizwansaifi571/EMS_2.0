@@ -151,7 +151,7 @@ class EmployeeManagementSystem:
         elif operation == "DATA INFORMATION":
             self.data_information()
         elif operation == "DATA VISUALIZATION":
-            self.data_visualization()
+            self.data_visualization_window()
         elif operation == "STATISTIC OF DATA":
             self.statistic_of_data()
 
@@ -470,8 +470,77 @@ class EmployeeManagementSystem:
 
 
 
-    def data_visualization(self):
-        messagebox.showinfo("Data Visualization", "Creating Data Visualization")
+    def data_visualization_window(self):
+        visualization_window = tk.Toplevel(self.root)
+        visualization_window.title("Data Visualization - Graphs and Plots")
+        visualization_window.configure(bg="#ecf0f1")
+
+        # Heading
+        heading_label = tk.Label(visualization_window, text="Graphs and Plots", font=("Arial", 16, "bold"), bg="#ecf0f1")
+        heading_label.pack(pady=10)
+
+        # Three Horizontal Parts
+        top_frame = tk.Frame(visualization_window, bg="#ecf0f1")
+        top_frame.pack(fill=tk.X)
+
+        middle_frame = tk.Frame(visualization_window, bg="#ecf0f1")
+        middle_frame.pack(fill=tk.X)
+
+        bottom_frame = tk.Frame(visualization_window, bg="#ecf0f1")
+        bottom_frame.pack(fill=tk.X)
+
+        # First Part (Left)
+        left_frame = tk.Frame(top_frame, bg="#ecf0f1")
+        left_frame.pack(side=tk.LEFT, padx=10, pady=10)
+
+        # Column Names
+        column_heading_label = tk.Label(left_frame, text="Column Names", font=("Arial", 12, "bold"), bg="#ecf0f1")
+        column_heading_label.pack()
+
+        # Separate into measured and dimension type columns
+        measured_label = tk.Label(left_frame, text="Measured:", font=("Arial", 10, "bold"), bg="#ecf0f1")
+        measured_label.pack(anchor='w')
+
+        measured_listbox = tk.Listbox(left_frame, selectmode=tk.MULTIPLE, exportselection=False)
+        measured_listbox.pack(expand=True, fill=tk.BOTH)
+
+        dimension_label = tk.Label(left_frame, text="Dimension:", font=("Arial", 10, "bold"), bg="#ecf0f1")
+        dimension_label.pack(anchor='w')
+
+        dimension_listbox = tk.Listbox(left_frame, selectmode=tk.MULTIPLE, exportselection=False)
+        dimension_listbox.pack(expand=True, fill=tk.BOTH)
+
+        # Second Part (Middle)
+        middle_frame_label = tk.Label(middle_frame, text="Select Visualization Type", font=("Arial", 12, "bold"), bg="#ecf0f1")
+        middle_frame_label.pack()
+
+        visualization_types = ["Bar Chart", "Histogram", "Scatter Plot", "Line Chart"]
+        selected_visualization_type = tk.StringVar()
+        selected_visualization_type.set(visualization_types[0])
+
+        for visualization_type in visualization_types:
+            visualization_radio = tk.Radiobutton(middle_frame, text=visualization_type, variable=selected_visualization_type, value=visualization_type, bg="#ecf0f1")
+            visualization_radio.pack(anchor='w')
+
+        # Third Part (Right)
+        right_frame = tk.Frame(top_frame, bg="#ecf0f1")
+        right_frame.pack(side=tk.RIGHT, padx=10, pady=10, fill=tk.Y)
+
+        # Visualization Button
+        visualize_button = tk.Button(right_frame, text="Visualize", command=lambda: self.visualize_data(measured_listbox.curselection(), dimension_listbox.curselection(), selected_visualization_type.get()), bg="#273746", fg="#ecf0f1")
+        visualize_button.pack()
+
+        # Close Button
+        close_button = tk.Button(bottom_frame, text="Close", command=visualization_window.destroy, bg="#273746", fg="#ecf0f1")
+        close_button.pack()
+
+    def visualize_data(self, measured_indices, dimension_indices, visualization_type):
+        # Dummy visualization function
+        print("Visualization Type:", visualization_type)
+        print("Measured Indices:", measured_indices)
+        print("Dimension Indices:", dimension_indices)
+
+
 
     def statistic_of_data(self):
         messagebox.showinfo("Statistic of Data", "Calculating Statistics")
