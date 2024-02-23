@@ -151,7 +151,7 @@ class EmployeeManagementSystem:
         elif operation == "DATA INFORMATION":
             self.data_information()
         elif operation == "DATA VISUALIZATION":
-            self.data_visualization()
+            self.data_visualization_window()
         elif operation == "STATISTIC OF DATA":
             self.statistic_of_data()
 
@@ -470,8 +470,111 @@ class EmployeeManagementSystem:
 
 
 
-    def data_visualization(self):
-        messagebox.showinfo("Data Visualization", "Creating Data Visualization")
+    def data_visualization_window(self):
+        # Create a new Toplevel window
+        visualization_window = tk.Toplevel(self.root)
+        visualization_window.title("Data Visualization")
+        
+        # Apply the same theme as the parent window
+        if self.theme == "light":
+            visualization_window.configure(bg="#ecf0f1")
+        else:
+            visualization_window.configure(bg="#2c3e50")
+        
+        # Header Frame of data_visualization_window
+        header_frame_visualization = tk.Frame(visualization_window, bg="#273746", height=70, bd=1, relief=tk.SOLID)
+        header_frame_visualization.pack(fill=tk.X)
+
+        header_label_visualization = tk.Label(header_frame_visualization, text="Graphs and Plots", font=("Arial", 20, "bold"), bg="#273746", fg="white")
+        header_label_visualization.pack(pady=15)
+
+        # Main Part Frame of data_visualization_window
+        main_frame_visualization = tk.Frame(visualization_window, bg="#ecf0f1", bd=1, relief=tk.SOLID)
+        main_frame_visualization.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        # Left Frame for displaying column names
+        left_frame = tk.Frame(main_frame_visualization, bg="#d5dbdb", bd=1, relief=tk.SOLID)
+        left_frame.pack(fill=tk.Y, side=tk.LEFT, padx=(10, 5), pady=10)
+
+        # Get column names and their data types
+        measured_columns = []  # For columns with numeric data types
+        dimension_columns = []  # For columns with non-numeric data types
+
+        for column in self.current_data.columns:
+            if pd.api.types.is_numeric_dtype(self.current_data[column]):
+                measured_columns.append(column)
+            else:
+                dimension_columns.append(column)
+
+        # Measured column box
+        measured_label = tk.Label(left_frame, text="Measured Columns", font=("Arial", 12, "bold"), bg="#d5dbdb")
+        measured_label.pack(pady=5, padx=10, anchor=tk.W)
+
+        measured_frame = tk.Frame(left_frame, bg="#d5dbdb")
+        measured_frame.pack(pady=(0, 5), padx=10, fill=tk.BOTH, expand=True)
+
+        for i, col in enumerate(measured_columns):
+            measured_button = tk.Button(measured_frame, text=col, font=("Arial", 10), bd=0, relief=tk.FLAT)
+            measured_button.grid(row=i, column=0, sticky="ew")
+
+        # Dimension column box
+        dimension_label = tk.Label(left_frame, text="Dimension Columns", font=("Arial", 12, "bold"), bg="#d5dbdb")
+        dimension_label.pack(pady=5, padx=10, anchor=tk.W)
+
+        dimension_frame = tk.Frame(left_frame, bg="#d5dbdb")
+        dimension_frame.pack(pady=(0, 5), padx=10, fill=tk.BOTH, expand=True)
+
+        for i, col in enumerate(dimension_columns):
+            dimension_button = tk.Button(dimension_frame, text=col, font=("Arial", 10), bd=0, relief=tk.FLAT)
+            dimension_button.grid(row=i, column=0, sticky="ew")
+
+        # Middle Frame for graph options
+        middle_frame = tk.Frame(main_frame_visualization, bg="#ecf0f1", bd=1, relief=tk.SOLID)
+        middle_frame.pack(fill=tk.Y, side=tk.LEFT, padx=5, pady=10)
+
+        # List of all possible graphs and plots
+        graph_options = ["Bar Plot", "Histogram", "Scatter Plot", "Box Plot", "Pie Chart"]
+
+        # Graph options label and listbox
+        graph_label = tk.Label(middle_frame, text="Graph Options", font=("Arial", 12, "bold"), bg="#ecf0f1")
+        graph_label.pack(pady=5)
+        graph_listbox = tk.Listbox(middle_frame, selectmode="single", height=len(graph_options))
+        for option in graph_options:
+            graph_listbox.insert(tk.END, option)
+        graph_listbox.pack(pady=5, padx=10)
+
+        # Right Frame for displaying graph description
+        right_frame = tk.Frame(main_frame_visualization, bg="#ecf0f1", bd=1, relief=tk.SOLID)
+        right_frame.pack(fill=tk.BOTH, expand=True, side=tk.RIGHT)
+
+        # Description label for the selected graph
+        description_label = tk.Label(right_frame, text="Graph Description", font=("Arial", 12, "bold"), bg="#ecf0f1")
+        description_label.pack(pady=5)
+
+        description_text = tk.Text(right_frame, height=2, wrap="word")
+        description_text.pack(pady=5, padx=10)
+
+        # Function to update the graph and description based on user selection
+        def update_graph_and_description():
+            pass  # Placeholder for the actual implementation
+        
+        # Button to generate the graph
+        generate_button = tk.Button(right_frame, text="Generate Graph", command=update_graph_and_description)
+        generate_button.pack(pady=10)
+
+        # Footer Frame
+        footer_frame = tk.Frame(visualization_window, bg="#273746", height=30, bd=1, relief=tk.SOLID)
+        footer_frame.pack(fill=tk.X, side=tk.BOTTOM)
+
+        footer_label = tk.Label(footer_frame, text="© 2024 EMS - A Business Intelligence Tool", font=("Arial", 8), bg="#273746", fg="white")
+        footer_label.pack(pady=5)
+
+        # Ensure the window remains open
+        visualization_window.mainloop()
+
+
+
+
 
     def statistic_of_data(self):
         messagebox.showinfo("Statistic of Data", "Calculating Statistics")
