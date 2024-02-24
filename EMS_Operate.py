@@ -483,22 +483,45 @@ class EmployeeManagementSystem:
                 column2 = entry2.get()
                 description_text.delete("1.0", tk.END)
                 if graph_name == "Bar Plot":
-                    description_text.insert(tk.END, "This is a bar plot.")
+                    description_text.insert(tk.END, "This is a bar plot.\n\n")
+                    description_text.insert(tk.END, "A bar plot represents categorical data with rectangular bars. "
+                                                    "The height of the bars indicates the frequency or value of each category.\n")
                 elif graph_name == "Histogram":
-                    description_text.insert(tk.END, "This is a histogram.")
+                    description_text.insert(tk.END, "This is a histogram.\n\n")
+                    description_text.insert(tk.END, "A histogram is used to visualize the distribution of numerical data. "
+                                                    "It consists of bins along the x-axis and the frequency or density of "
+                                                    "observations in each bin on the y-axis.\n")
                 elif graph_name == "Scatter Plot":
-                    description_text.insert(tk.END, "This is a scatter plot.")
+                    description_text.insert(tk.END, "This is a scatter plot.\n\n")
+                    description_text.insert(tk.END, "A scatter plot is used to visualize the relationship between two numerical "
+                                                    "variables. Each point represents an observation, with the x-coordinate "
+                                                    "representing one variable and the y-coordinate representing the other.\n")
                 elif graph_name == "Box Plot":
-                    description_text.insert(tk.END, "This is a box plot.")
+                    description_text.insert(tk.END, "This is a box plot.\n\n")
+                    description_text.insert(tk.END, "A box plot displays the distribution of numerical data and identifies outliers. "
+                                                    "The box represents the interquartile range (IQR), with the median marked by "
+                                                    "a line inside the box. The whiskers extend to the minimum and maximum values, "
+                                                    "excluding outliers.\n")
                 elif graph_name == "Pie Chart":
-                    description_text.insert(tk.END, "This is a pie chart.")
+                    description_text.insert(tk.END, "This is a pie chart.\n\n")
+                    description_text.insert(tk.END, "A pie chart is used to show the proportion of different categories in a dataset. "
+                                                    "Each slice of the pie represents a category, and the size of the slice corresponds "
+                                                    "to the proportion of the category in the dataset.\n")
                 elif graph_name == "Line Plot":
-                    description_text.insert(tk.END, "This is a line plot.")
+                    description_text.insert(tk.END, "This is a line plot.\n\n")
+                    description_text.insert(tk.END, "A line plot is used to visualize the trend of numerical data over time or "
+                                                    "another continuous variable. It connects data points with straight lines, "
+                                                    "emphasizing the relationship between successive data points.\n")
                 elif graph_name == "Area Plot":
-                    description_text.insert(tk.END, "This is an area plot.")
+                    description_text.insert(tk.END, "This is an area plot.\n\n")
+                    description_text.insert(tk.END, "An area plot is similar to a line plot but fills the area under the line. "
+                                                    "It is useful for visualizing cumulative totals or proportions over time or "
+                                                    "another continuous variable.\n")
                 elif graph_name == "Violin Plot":
-                    description_text.insert(tk.END, "This is a violin plot.")
-
+                    description_text.insert(tk.END, "This is a violin plot.\n\n")
+                    description_text.insert(tk.END, "A violin plot combines the features of a box plot and a kernel density plot. "
+                                                    "It displays the distribution of numerical data and provides insights into the "
+                                                    "probability density of the data at different values.\n")
                 self.generate_graph(graph_name, column1, column2)
 
         # Create a new Toplevel window
