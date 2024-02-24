@@ -650,7 +650,7 @@ class EmployeeManagementSystem:
     def generate_graph(self, graph_name, column1, column2):
         plt.figure(figsize=(10, 6))  # Adjust the figure size as needed
         sns.set_palette("pastel")  # Customize color palette for better appearance
-        
+
         if graph_name == "Bar Plot":
             sns.barplot(x=column1, y=column2, data=self.current_data)
             plt.title("Bar Plot")
@@ -663,6 +663,7 @@ class EmployeeManagementSystem:
         elif graph_name == "Box Plot":
             sns.boxplot(x=column1, y=column2, data=self.current_data)
             plt.title("Box Plot")
+            plt.legend([column2])  # Add legend for better clarity
         elif graph_name == "Pie Chart":
             plt.pie(self.current_data[column1], labels=self.current_data[column2], autopct='%1.1f%%')
             plt.title("Pie Chart")
@@ -677,13 +678,11 @@ class EmployeeManagementSystem:
             sns.violinplot(x=column1, y=column2, data=self.current_data)
             plt.title("Violin Plot")
         
-        plt.legend(title=column2)  # Add legend for better clarity
         plt.grid(True)  # Add grid lines for better readability
         plt.xlabel(column1)
         plt.ylabel(column2)
         plt.tight_layout()  # Adjust layout for better spacing
         plt.show()
-
 
 
 
