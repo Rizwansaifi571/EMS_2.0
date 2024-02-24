@@ -7,6 +7,8 @@ import openpyxl
 from docx import Document
 from scipy.stats import mode as scipy_mode
 from pandasgui import show
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 class EmployeeManagementSystem:
     def __init__(self, root):
@@ -533,26 +535,29 @@ class EmployeeManagementSystem:
         middle_frame.pack(fill=tk.Y, side=tk.LEFT, padx=10, pady=10)
         
         # Create the left box for Entry 1
-        left_box = tk.Frame(middle_frame, bg="lightblue", padx=20, pady=20, bd=2, relief=tk.RAISED)
+        left_box = tk.Frame(middle_frame, bg="#f0f0f0", padx=20, pady=20, bd=2, relief=tk.RAISED)
         left_box.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=10)
-        label1 = tk.Label(left_box, text="Entry 1", font=("Arial", 12))
+        label1 = tk.Label(left_box, text="Enter Measured Column Name", font=("Arial", 12))
         label1.pack()
         entry1 = tk.Entry(left_box, font=("Arial", 12), bd=2, relief=tk.SOLID)
         entry1.pack(fill=tk.X, padx=5, pady=5)
 
         # Create the right box for Entry 2
-        right_box = tk.Frame(middle_frame, bg="lightgreen", padx=20, pady=20, bd=2, relief=tk.RAISED)
+        right_box = tk.Frame(middle_frame, bg="#f0f0f0", padx=20, pady=20, bd=2, relief=tk.RAISED)
         right_box.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=10)
-        label2 = tk.Label(right_box, text="Entry 2", font=("Arial", 12))
+        label2 = tk.Label(right_box, text="Enter Dimension Column Name", font=("Arial", 12))
         label2.pack()
         entry2 = tk.Entry(right_box, font=("Arial", 12), bd=2, relief=tk.SOLID)
         entry2.pack(fill=tk.X, padx=5, pady=5)
 
 
 
+
+
         
         # List of all possible graphs and plots
-        graph_options = ["Bar Plot", "Histogram", "Scatter Plot", "Box Plot", "Pie Chart"]
+        graph_options = ["Bar Plot", "Histogram", "Scatter Plot", "Box Plot", "Pie Chart", "Line Plot", "Area Plot", "Violin Plot"]
+
 
         # Graph options label and listbox
         graph_label = tk.Label(left_frame, text="Graph Options", font=("Arial", 12, "bold"), bg="#d5dbdb", bd=1, relief=tk.SOLID, padx=10, pady=5)
@@ -578,28 +583,65 @@ class EmployeeManagementSystem:
 
         # Function to update the graph and description based on user selection
         def update_graph_and_description():
-            selected_graph = graph_listbox.curselection()
-            if selected_graph:
-                selected_graph_index = selected_graph[0]
+            # Get the column names from Entry 1 and Entry 2
+            column1 = entry1.get()
+            column2 = entry2.get()
+
+            # Get the selected graph type from the listbox
+            selected_graph_index = graph_listbox.curselection()
+            if selected_graph_index:
+                selected_graph_index = selected_graph_index[0]
                 graph_name = graph_options[selected_graph_index]
                 description_text.delete("1.0", tk.END)
-                if graph_name == "Bar Plot":
-                    description_text.insert(tk.END, "This is a bar plot.")
-                elif graph_name == "Histogram":
-                    description_text.insert(tk.END, "This is a histogram.")
-                elif graph_name == "Scatter Plot":
-                    description_text.insert(tk.END, "This is a scatter plot.")
-                elif graph_name == "Box Plot":
-                    description_text.insert(tk.END, "This is a box plot.")
-                elif graph_name == "Pie Chart":
-                    description_text.insert(tk.END, "This is a pie chart.")
+                description_text.insert(tk.END, f"Generating {graph_name} for {column1} and {column2}.")
 
-                # Placeholder for generating the graph based on selected graph option
-                generate_graph(graph_name)
+                # Call the generate_graph function with the selected graph type and column names
+                generate_graph(graph_name, column1, column2)
 
-        # Placeholder function for generating graphs based on selection
-        def generate_graph(graph_name):
-            pass
+
+                # Modify the generate_graph function to include logic for the new graph types
+                def generate_graph(graph_name, column1, column2, data):
+                    plt.figure(figsize=(10, 6))  # Adjust the figure size as needed
+                    
+                    # Customize color palette for better appearance
+                    sns.set_palette("pastel")
+                    
+                    if graph_name == "Bar Plot":
+                        sns.barplot(x=column1, y=column2, data=data)
+                        plt.title("Bar Plot")
+                    elif graph_name == "Histogram":
+                        sns.histplot(data[column1], kde=True)
+                        plt.title("Histogram")
+                    elif graph_name == "Scatter Plot":
+                        sns.scatterplot(x=column1, y=column2, data=data)
+                        plt.title("Scatter Plot")
+                    elif graph_name == "Box Plot":
+                        sns.boxplot(x=column1, y=column2, data=data)
+                        plt.title("Box Plot")
+                    elif graph_name == "Pie Chart":
+                        plt.pie(data[column1], labels=data[column2], autopct='%1.1f%%')
+                        plt.title("Pie Chart")
+                    elif graph_name == "Line Plot":
+                        sns.lineplot(x=column1, y=column2, data=data, marker='o', markersize=8, linestyle='-', linewidth=2)
+                        plt.title("Line Plot")
+                    elif graph_name == "Area Plot":
+                        sns.lineplot(x=column1, y=column2, data=data, color='skyblue', marker='o', markersize=8, linestyle='-', linewidth=2)
+                        plt.fill_between(data[column1], data[column2], color="skyblue", alpha=0.4)
+                        plt.title("Area Plot")
+                    elif graph_name == "Violin Plot":
+                        sns.violinplot(x=column1, y=column2, data=data)
+                        plt.title("Violin Plot")
+                    
+                    # Add legend for better clarity
+                    plt.legend(title=column2)
+                    
+                    # Add grid lines for better readability
+                    plt.grid(True)
+                    
+                    plt.xlabel(column1)
+                    plt.ylabel(column2)
+                    plt.tight_layout()  # Adjust layout for better spacing
+                    plt.show()
 
 
         # Button to generate the graph
