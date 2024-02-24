@@ -531,14 +531,34 @@ class EmployeeManagementSystem:
         # Middle Frame for graph options
         middle_frame = tk.Frame(main_frame_visualization, bg="#ecf0f1", bd=1, relief=tk.SOLID)
         middle_frame.pack(fill=tk.Y, side=tk.LEFT, padx=5, pady=10)
+        
+        # Create the left box for Entry 1
+        left_box = tk.Frame(middle_frame, bg="lightblue", padx=20, pady=20, bd=2, relief=tk.RAISED)
+        left_box.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=10)
+        label1 = tk.Label(left_box, text="Entry 1", font=("Arial", 12))
+        label1.pack()
+        entry1 = tk.Entry(left_box, font=("Arial", 12), bd=2, relief=tk.SOLID)
+        entry1.pack(fill=tk.X, padx=5, pady=5)
 
+        # Create the right box for Entry 2
+        right_box = tk.Frame(middle_frame, bg="lightgreen", padx=20, pady=20, bd=2, relief=tk.RAISED)
+        right_box.pack(side=tk.LEFT, fill=tk.BOTH, expand=True, padx=5, pady=10)
+        label2 = tk.Label(right_box, text="Entry 2", font=("Arial", 12))
+        label2.pack()
+        entry2 = tk.Entry(right_box, font=("Arial", 12), bd=2, relief=tk.SOLID)
+        entry2.pack(fill=tk.X, padx=5, pady=5)
+
+
+
+        
         # List of all possible graphs and plots
         graph_options = ["Bar Plot", "Histogram", "Scatter Plot", "Box Plot", "Pie Chart"]
 
         # Graph options label and listbox
-        graph_label = tk.Label(middle_frame, text="Graph Options", font=("Arial", 12, "bold"), bg="#ecf0f1")
-        graph_label.pack(pady=5)
-        graph_listbox = tk.Listbox(middle_frame, selectmode="single", height=len(graph_options))
+        graph_label = tk.Label(left_frame, text="Graph Options", font=("Arial", 12, "bold"), bg="#d5dbdb")
+        graph_label.pack(pady=20, padx=10, anchor=tk.W)
+
+        graph_listbox = tk.Listbox(left_frame, selectmode="single", height=len(graph_options), font=("Arial", 10))
         for option in graph_options:
             graph_listbox.insert(tk.END, option)
         graph_listbox.pack(pady=5, padx=10)
@@ -556,8 +576,30 @@ class EmployeeManagementSystem:
 
         # Function to update the graph and description based on user selection
         def update_graph_and_description():
-            pass  # Placeholder for the actual implementation
-        
+            selected_graph = graph_listbox.curselection()
+            if selected_graph:
+                selected_graph_index = selected_graph[0]
+                graph_name = graph_options[selected_graph_index]
+                description_text.delete("1.0", tk.END)
+                if graph_name == "Bar Plot":
+                    description_text.insert(tk.END, "This is a bar plot.")
+                elif graph_name == "Histogram":
+                    description_text.insert(tk.END, "This is a histogram.")
+                elif graph_name == "Scatter Plot":
+                    description_text.insert(tk.END, "This is a scatter plot.")
+                elif graph_name == "Box Plot":
+                    description_text.insert(tk.END, "This is a box plot.")
+                elif graph_name == "Pie Chart":
+                    description_text.insert(tk.END, "This is a pie chart.")
+
+                # Placeholder for generating the graph based on selected graph option
+                generate_graph(graph_name)
+
+        # Placeholder function for generating graphs based on selection
+        def generate_graph(graph_name):
+            pass
+
+
         # Button to generate the graph
         generate_button = tk.Button(right_frame, text="Generate Graph", command=update_graph_and_description)
         generate_button.pack(pady=10)
