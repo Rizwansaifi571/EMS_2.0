@@ -17,6 +17,7 @@ class EmployeeManagementSystem:
 
         # Add file_path attribute
         self.file_path = None
+        self.current_data = None
 
         # Header Frame
         self.header_frame = tk.Frame(root, bg="#273746", height=70, bd=1, relief=tk.SOLID)
@@ -473,6 +474,33 @@ class EmployeeManagementSystem:
 
 
     def data_visualization_window(self):
+        def update_graph_and_description():
+            selected_graph = graph_listbox.curselection()
+            if selected_graph:
+                selected_graph_index = selected_graph[0]
+                graph_name = graph_options[selected_graph_index]
+                column1 = entry1.get()
+                column2 = entry2.get()
+                description_text.delete("1.0", tk.END)
+                if graph_name == "Bar Plot":
+                    description_text.insert(tk.END, "This is a bar plot.")
+                elif graph_name == "Histogram":
+                    description_text.insert(tk.END, "This is a histogram.")
+                elif graph_name == "Scatter Plot":
+                    description_text.insert(tk.END, "This is a scatter plot.")
+                elif graph_name == "Box Plot":
+                    description_text.insert(tk.END, "This is a box plot.")
+                elif graph_name == "Pie Chart":
+                    description_text.insert(tk.END, "This is a pie chart.")
+                elif graph_name == "Line Plot":
+                    description_text.insert(tk.END, "This is a line plot.")
+                elif graph_name == "Area Plot":
+                    description_text.insert(tk.END, "This is an area plot.")
+                elif graph_name == "Violin Plot":
+                    description_text.insert(tk.END, "This is a violin plot.")
+
+                self.generate_graph(graph_name, column1, column2)
+
         # Create a new Toplevel window
         visualization_window = tk.Toplevel(self.root)
         visualization_window.title("Data Visualization")
@@ -581,68 +609,6 @@ class EmployeeManagementSystem:
         description_text = tk.Text(right_frame, height=2, wrap="word",  bd=1, relief=tk.SOLID)
         description_text.pack(pady=5, padx=10,  fill=tk.BOTH, expand=True)
 
-        # Function to update the graph and description based on user selection
-        def update_graph_and_description():
-            # Get the column names from Entry 1 and Entry 2
-            column1 = entry1.get()
-            column2 = entry2.get()
-
-            # Get the selected graph type from the listbox
-            selected_graph_index = graph_listbox.curselection()
-            if selected_graph_index:
-                selected_graph_index = selected_graph_index[0]
-                graph_name = graph_options[selected_graph_index]
-                description_text.delete("1.0", tk.END)
-                description_text.insert(tk.END, f"Generating {graph_name} for {column1} and {column2}.")
-
-                # Call the generate_graph function with the selected graph type and column names
-                generate_graph(graph_name, column1, column2)
-
-
-                # Modify the generate_graph function to include logic for the new graph types
-                def generate_graph(graph_name, column1, column2, data):
-                    plt.figure(figsize=(10, 6))  # Adjust the figure size as needed
-                    
-                    # Customize color palette for better appearance
-                    sns.set_palette("pastel")
-                    
-                    if graph_name == "Bar Plot":
-                        sns.barplot(x=column1, y=column2, data=data)
-                        plt.title("Bar Plot")
-                    elif graph_name == "Histogram":
-                        sns.histplot(data[column1], kde=True)
-                        plt.title("Histogram")
-                    elif graph_name == "Scatter Plot":
-                        sns.scatterplot(x=column1, y=column2, data=data)
-                        plt.title("Scatter Plot")
-                    elif graph_name == "Box Plot":
-                        sns.boxplot(x=column1, y=column2, data=data)
-                        plt.title("Box Plot")
-                    elif graph_name == "Pie Chart":
-                        plt.pie(data[column1], labels=data[column2], autopct='%1.1f%%')
-                        plt.title("Pie Chart")
-                    elif graph_name == "Line Plot":
-                        sns.lineplot(x=column1, y=column2, data=data, marker='o', markersize=8, linestyle='-', linewidth=2)
-                        plt.title("Line Plot")
-                    elif graph_name == "Area Plot":
-                        sns.lineplot(x=column1, y=column2, data=data, color='skyblue', marker='o', markersize=8, linestyle='-', linewidth=2)
-                        plt.fill_between(data[column1], data[column2], color="skyblue", alpha=0.4)
-                        plt.title("Area Plot")
-                    elif graph_name == "Violin Plot":
-                        sns.violinplot(x=column1, y=column2, data=data)
-                        plt.title("Violin Plot")
-                    
-                    # Add legend for better clarity
-                    plt.legend(title=column2)
-                    
-                    # Add grid lines for better readability
-                    plt.grid(True)
-                    
-                    plt.xlabel(column1)
-                    plt.ylabel(column2)
-                    plt.tight_layout()  # Adjust layout for better spacing
-                    plt.show()
-
 
         # Button to generate the graph
         generate_button = tk.Button(right_frame, text="Generate Graph", font=("Arial", 10, "bold"), command=update_graph_and_description, bd=2, relief=tk.SOLID)
@@ -657,6 +623,43 @@ class EmployeeManagementSystem:
 
         # Ensure the window remains open
         visualization_window.mainloop()
+
+    def generate_graph(self, graph_name, column1, column2):
+        plt.figure(figsize=(10, 6))  # Adjust the figure size as needed
+        sns.set_palette("pastel")  # Customize color palette for better appearance
+        
+        if graph_name == "Bar Plot":
+            sns.barplot(x=column1, y=column2, data=self.current_data)
+            plt.title("Bar Plot")
+        elif graph_name == "Histogram":
+            sns.histplot(data=self.current_data[column1], kde=True)
+            plt.title("Histogram")
+        elif graph_name == "Scatter Plot":
+            sns.scatterplot(x=column1, y=column2, data=self.current_data)
+            plt.title("Scatter Plot")
+        elif graph_name == "Box Plot":
+            sns.boxplot(x=column1, y=column2, data=self.current_data)
+            plt.title("Box Plot")
+        elif graph_name == "Pie Chart":
+            plt.pie(self.current_data[column1], labels=self.current_data[column2], autopct='%1.1f%%')
+            plt.title("Pie Chart")
+        elif graph_name == "Line Plot":
+            sns.lineplot(x=column1, y=column2, data=self.current_data, marker='o', markersize=8, linestyle='-', linewidth=2)
+            plt.title("Line Plot")
+        elif graph_name == "Area Plot":
+            sns.lineplot(x=column1, y=column2, data=self.current_data, color='skyblue', marker='o', markersize=8, linestyle='-', linewidth=2)
+            plt.fill_between(self.current_data[column1], self.current_data[column2], color="skyblue", alpha=0.4)
+            plt.title("Area Plot")
+        elif graph_name == "Violin Plot":
+            sns.violinplot(x=column1, y=column2, data=self.current_data)
+            plt.title("Violin Plot")
+        
+        plt.legend(title=column2)  # Add legend for better clarity
+        plt.grid(True)  # Add grid lines for better readability
+        plt.xlabel(column1)
+        plt.ylabel(column2)
+        plt.tight_layout()  # Adjust layout for better spacing
+        plt.show()
 
 
 
