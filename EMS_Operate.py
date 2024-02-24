@@ -559,27 +559,29 @@ class EmployeeManagementSystem:
             else:
                 dimension_columns.append(column)
 
+        # List of all possible measured columns
+        measured_columns = [col for col in self.current_data.columns if pd.api.types.is_numeric_dtype(self.current_data[col])]
+        
         # Measured column box
         measured_label = tk.Label(left_frame, text="Measured Columns", font=("Arial", 12, "bold"), bg="#d5dbdb")
         measured_label.pack(pady=5, padx=10, anchor=tk.W)
 
-        measured_frame = tk.Frame(left_frame, bg="#d5dbdb", bd=1, relief=tk.SOLID)
-        measured_frame.pack(pady=(0, 5), padx=10, fill=tk.BOTH, expand=True)
+        measured_listbox = tk.Listbox(left_frame, selectmode="single", height=len(measured_columns), font=("Arial", 10), bd=1, relief=tk.SOLID)
+        for column in measured_columns:
+            measured_listbox.insert(tk.END, column)
+        measured_listbox.pack(pady=5, padx=10, fill=tk.BOTH, expand=True)
 
-        for i, col in enumerate(measured_columns):
-            measured_button = tk.Button(measured_frame, text=col, font=("Arial", 10), bd=0, relief=tk.FLAT)
-            measured_button.grid(row=i, column=0, sticky="ew")
-
+        # List of all possible dimension columns
+        dimension_columns = [col for col in self.current_data.columns if not pd.api.types.is_numeric_dtype(self.current_data[col])]
+        
         # Dimension column box
         dimension_label = tk.Label(left_frame, text="Dimension Columns", font=("Arial", 12, "bold"), bg="#d5dbdb")
         dimension_label.pack(pady=5, padx=10, anchor=tk.W)
 
-        dimension_frame = tk.Frame(left_frame, bg="#d5dbdb", bd=1, relief=tk.SOLID)
-        dimension_frame.pack(pady=(0, 5), padx=10, fill=tk.BOTH, expand=True)
-
-        for i, col in enumerate(dimension_columns):
-            dimension_button = tk.Button(dimension_frame, text=col, font=("Arial", 10), bd=0, relief=tk.FLAT)
-            dimension_button.grid(row=i, column=0, sticky="ew")
+        dimension_listbox = tk.Listbox(left_frame, selectmode="single", height=len(dimension_columns), font=("Arial", 10), bd=1, relief=tk.SOLID)
+        for column in dimension_columns:
+            dimension_listbox.insert(tk.END, column)
+        dimension_listbox.pack(pady=5, padx=10, fill=tk.BOTH, expand=True)
 
         # Middle Frame for graph options
         middle_frame = tk.Frame(main_frame_visualization, bg="#ecf0f1", bd=1, relief=tk.SOLID)
@@ -601,7 +603,24 @@ class EmployeeManagementSystem:
         entry2 = tk.Entry(right_box, font=("Arial", 12), bd=2, relief=tk.SOLID)
         entry2.pack(fill=tk.X, padx=5, pady=5)
 
+        def fill_measured_column(event):
+            selected_measure = measured_listbox.curselection()
+            if selected_measure:
+                selected_measure_index = selected_measure[0]
+                selected_measure_name = measured_columns[selected_measure_index]
+                entry1.delete(0, tk.END)
+                entry1.insert(tk.END, selected_measure_name)
 
+        def fill_dimension_column(event):
+            selected_dimension = dimension_listbox.curselection()
+            if selected_dimension:
+                selected_dimension_index = selected_dimension[0]
+                selected_dimension_name = dimension_columns[selected_dimension_index]
+                entry2.delete(0, tk.END)
+                entry2.insert(tk.END, selected_dimension_name)
+
+        entry1.bind("<Return>", fill_measured_column)
+        entry2.bind("<Return>", fill_dimension_column)
 
 
 
