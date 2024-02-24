@@ -510,7 +510,7 @@ class EmployeeManagementSystem:
         measured_label = tk.Label(left_frame, text="Measured Columns", font=("Arial", 12, "bold"), bg="#d5dbdb")
         measured_label.pack(pady=5, padx=10, anchor=tk.W)
 
-        measured_frame = tk.Frame(left_frame, bg="#d5dbdb")
+        measured_frame = tk.Frame(left_frame, bg="#d5dbdb", bd=1, relief=tk.SOLID)
         measured_frame.pack(pady=(0, 5), padx=10, fill=tk.BOTH, expand=True)
 
         for i, col in enumerate(measured_columns):
@@ -521,7 +521,7 @@ class EmployeeManagementSystem:
         dimension_label = tk.Label(left_frame, text="Dimension Columns", font=("Arial", 12, "bold"), bg="#d5dbdb")
         dimension_label.pack(pady=5, padx=10, anchor=tk.W)
 
-        dimension_frame = tk.Frame(left_frame, bg="#d5dbdb")
+        dimension_frame = tk.Frame(left_frame, bg="#d5dbdb", bd=1, relief=tk.SOLID)
         dimension_frame.pack(pady=(0, 5), padx=10, fill=tk.BOTH, expand=True)
 
         for i, col in enumerate(dimension_columns):
@@ -530,7 +530,7 @@ class EmployeeManagementSystem:
 
         # Middle Frame for graph options
         middle_frame = tk.Frame(main_frame_visualization, bg="#ecf0f1", bd=1, relief=tk.SOLID)
-        middle_frame.pack(fill=tk.Y, side=tk.LEFT, padx=5, pady=10)
+        middle_frame.pack(fill=tk.Y, side=tk.LEFT, padx=10, pady=10)
         
         # Create the left box for Entry 1
         left_box = tk.Frame(middle_frame, bg="lightblue", padx=20, pady=20, bd=2, relief=tk.RAISED)
@@ -555,24 +555,26 @@ class EmployeeManagementSystem:
         graph_options = ["Bar Plot", "Histogram", "Scatter Plot", "Box Plot", "Pie Chart"]
 
         # Graph options label and listbox
-        graph_label = tk.Label(left_frame, text="Graph Options", font=("Arial", 12, "bold"), bg="#d5dbdb")
-        graph_label.pack(pady=20, padx=10, anchor=tk.W)
+        graph_label = tk.Label(left_frame, text="Graph Options", font=("Arial", 12, "bold"), bg="#d5dbdb", bd=1, relief=tk.SOLID, padx=10, pady=5)
+        graph_label.pack(pady=10, anchor=tk.W)
 
-        graph_listbox = tk.Listbox(left_frame, selectmode="single", height=len(graph_options), font=("Arial", 10))
+        graph_listbox = tk.Listbox(left_frame, selectmode="single", height=len(graph_options), font=("Arial", 12), bd=1, relief=tk.SOLID)
         for option in graph_options:
             graph_listbox.insert(tk.END, option)
-        graph_listbox.pack(pady=5, padx=10)
+        graph_listbox.pack(pady=5, padx=10, fill=tk.BOTH, expand=True)
+
+
 
         # Right Frame for displaying graph description
         right_frame = tk.Frame(main_frame_visualization, bg="#ecf0f1", bd=1, relief=tk.SOLID)
-        right_frame.pack(fill=tk.BOTH, expand=True, side=tk.RIGHT)
+        right_frame.pack(fill=tk.BOTH, expand=True, side=tk.RIGHT, padx=10, pady=10)
 
         # Description label for the selected graph
         description_label = tk.Label(right_frame, text="Graph Description", font=("Arial", 12, "bold"), bg="#ecf0f1")
-        description_label.pack(pady=5)
+        description_label.pack(pady=10, padx=10, anchor=tk.W)
 
-        description_text = tk.Text(right_frame, height=2, wrap="word")
-        description_text.pack(pady=5, padx=10)
+        description_text = tk.Text(right_frame, height=2, wrap="word",  bd=1, relief=tk.SOLID)
+        description_text.pack(pady=5, padx=10,  fill=tk.BOTH, expand=True)
 
         # Function to update the graph and description based on user selection
         def update_graph_and_description():
@@ -601,8 +603,8 @@ class EmployeeManagementSystem:
 
 
         # Button to generate the graph
-        generate_button = tk.Button(right_frame, text="Generate Graph", command=update_graph_and_description)
-        generate_button.pack(pady=10)
+        generate_button = tk.Button(right_frame, text="Generate Graph", font=("Arial", 10, "bold"), command=update_graph_and_description, bd=2, relief=tk.SOLID)
+        generate_button.pack(pady=10, padx=10, anchor=tk.E) 
 
         # Footer Frame
         footer_frame = tk.Frame(visualization_window, bg="#273746", height=30, bd=1, relief=tk.SOLID)
