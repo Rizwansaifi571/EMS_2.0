@@ -556,8 +556,30 @@ class EmployeeManagementSystem:
 
         # Function to update the graph and description based on user selection
         def update_graph_and_description():
-            pass  # Placeholder for the actual implementation
-        
+            selected_graph = graph_listbox.curselection()
+            if selected_graph:
+                selected_graph_index = selected_graph[0]
+                graph_name = graph_options[selected_graph_index]
+                description_text.delete("1.0", tk.END)
+                if graph_name == "Bar Plot":
+                    description_text.insert(tk.END, "This is a bar plot.")
+                elif graph_name == "Histogram":
+                    description_text.insert(tk.END, "This is a histogram.")
+                elif graph_name == "Scatter Plot":
+                    description_text.insert(tk.END, "This is a scatter plot.")
+                elif graph_name == "Box Plot":
+                    description_text.insert(tk.END, "This is a box plot.")
+                elif graph_name == "Pie Chart":
+                    description_text.insert(tk.END, "This is a pie chart.")
+
+                # Placeholder for generating the graph based on selected graph option
+                generate_graph(graph_name)
+
+        # Placeholder function for generating graphs based on selection
+        def generate_graph(graph_name):
+            pass
+
+
         # Button to generate the graph
         generate_button = tk.Button(right_frame, text="Generate Graph", command=update_graph_and_description)
         generate_button.pack(pady=10)
