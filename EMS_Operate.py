@@ -110,6 +110,61 @@ class EmployeeManagementSystem:
 
         self.set_theme()
 
+    def dashboard(self):
+        selected_graphs = []
+        selected_columns = []
+
+        graph_options = ["Bar Plot", "Histogram", "Scatter Plot", "Box Plot", "Pie Chart", "Line Plot", "Area Plot", "Violin Plot"]
+
+        def add_graph():
+            selected_graph = graph_listbox.curselection()
+            if selected_graph:
+                selected_graph_index = selected_graph[0]
+                selected_graph_name = graph_options[selected_graph_index]
+                selected_graphs.append(selected_graph_name)
+
+                selected_column1 = entry1.get()
+                selected_column2 = entry2.get()
+                selected_columns.append((selected_column1, selected_column2))
+
+                graph_display_label.config(text=f"Graphs Selected: {', '.join(selected_graphs)}")
+
+        def generate_dashboard():
+            dashboard_figure, dashboard_axes = plt.subplots(len(selected_graphs), figsize=(10, 6 * len(selected_graphs)))
+            for i, (graph_name, (column1, column2)) in enumerate(zip(selected_graphs, selected_columns)):
+                ax = dashboard_axes[i] if len(selected_graphs) > 1 else dashboard_axes
+                self.generate_graph(graph_name, column1, column2, ax)
+            plt.tight_layout()
+            plt.savefig("dashboard.png")  # Save dashboard image
+            plt.show()
+
+        dashboard_window = tk.Toplevel(self.root)
+        dashboard_window.title("Dashboard")
+
+        graph_listbox = tk.Listbox(dashboard_window, selectmode="multiple", height=len(graph_options), font=("Arial", 12))
+        for option in graph_options:
+            graph_listbox.insert(tk.END, option)
+        graph_listbox.pack(pady=5, padx=10, fill=tk.BOTH, expand=True)
+
+        label1 = tk.Label(dashboard_window, text="Enter Measured Column Name", font=("Arial", 12))
+        label1.pack()
+        entry1 = tk.Entry(dashboard_window, font=("Arial", 12))
+        entry1.pack(fill=tk.X, padx=5, pady=5)
+
+        label2 = tk.Label(dashboard_window, text="Enter Dimension Column Name", font=("Arial", 12))
+        label2.pack()
+        entry2 = tk.Entry(dashboard_window, font=("Arial", 12))
+        entry2.pack(fill=tk.X, padx=5, pady=5)
+
+        add_button = tk.Button(dashboard_window, text="Add Graph", font=("Arial", 10, "bold"), command=add_graph)
+        add_button.pack(pady=10, padx=10)
+
+        graph_display_label = tk.Label(dashboard_window, text="", font=("Arial", 12))
+        graph_display_label.pack(pady=5)
+
+        generate_button = tk.Button(dashboard_window, text="Generate Dashboard", font=("Arial", 10, "bold"), command=generate_dashboard)
+        generate_button.pack(pady=10, padx=10)
+
     def toggle_theme(self):
         self.theme = "dark" if self.theme == "light" else "light"
         self.set_theme()
@@ -474,6 +529,7 @@ class EmployeeManagementSystem:
 
 
     def data_visualization_window(self):
+        graph_options = ["Bar Plot", "Histogram", "Scatter Plot", "Box Plot", "Pie Chart", "Line Plot", "Area Plot", "Violin Plot"]
         def update_graph_and_description():
             selected_graph = graph_listbox.curselection()
             if selected_graph:
@@ -528,6 +584,7 @@ class EmployeeManagementSystem:
         visualization_window = tk.Toplevel(self.root)
         visualization_window.title("Data Visualization")
         
+
         # Apply the same theme as the parent window
         if self.theme == "light":
             visualization_window.configure(bg="#ecf0f1")
@@ -656,6 +713,10 @@ class EmployeeManagementSystem:
         generate_button = tk.Button(right_frame, text="Generate Graph", font=("Arial", 10, "bold"), command=update_graph_and_description, bd=2, relief=tk.SOLID)
         generate_button.pack(pady=10, padx=10, anchor=tk.E) 
 
+        # Add Dashboard Button
+        dashboard_button = tk.Button(left_frame, text="Dashboard", font=("Arial", 12, "bold"), bd=2, relief=tk.SOLID, command=self.dashboard)
+        dashboard_button.pack(pady=10, padx=10, fill=tk.X)
+
         # Footer Frame
         footer_frame = tk.Frame(visualization_window, bg="#273746", height=30, bd=1, relief=tk.SOLID)
         footer_frame.pack(fill=tk.X, side=tk.BOTTOM)
@@ -666,42 +727,48 @@ class EmployeeManagementSystem:
         # Ensure the window remains open
         visualization_window.mainloop()
 
-    def generate_graph(self, graph_name, column1, column2):
-        plt.figure(figsize=(10, 6))  # Adjust the figure size as needed
-        sns.set_palette("pastel")  # Customize color palette for better appearance
+    def generate_graph(self, graph_name, column1, column2, ax=None):
+        sns.set_theme()  # Set Seaborn default theme for better aesthetics
+
+        if ax is None:
+            plt.figure(figsize=(10, 6))  # Adjust the figure size as needed
+        else:
+            plt.sca(ax)
 
         if graph_name == "Bar Plot":
-            sns.barplot(x=column1, y=column2, data=self.current_data)
-            plt.title("Bar Plot")
+            sns.barplot(x=column1, y=column2, data=self.current_data, palette="viridis", ci=None)
+            plt.title("Bar Plot", fontsize=16)
+            plt.xticks(rotation=45, ha='right')  # Rotate x-axis labels for better readability
         elif graph_name == "Histogram":
-            sns.histplot(data=self.current_data[column1], kde=True)
-            plt.title("Histogram")
+            sns.histplot(data=self.current_data[column1], kde=True, color='skyblue')
+            plt.title("Histogram", fontsize=16)
         elif graph_name == "Scatter Plot":
-            sns.scatterplot(x=column1, y=column2, data=self.current_data)
-            plt.title("Scatter Plot")
+            sns.scatterplot(x=column1, y=column2, data=self.current_data, color='green')
+            plt.title("Scatter Plot", fontsize=16)
         elif graph_name == "Box Plot":
-            sns.boxplot(x=column1, y=column2, data=self.current_data)
-            plt.title("Box Plot")
-            plt.legend([column2])  # Add legend for better clarity
+            sns.boxplot(x=column1, y=column2, data=self.current_data, palette="pastel")
+            plt.title("Box Plot", fontsize=16)
+            plt.legend([column2], loc='upper right')  # Move legend to a better position
         elif graph_name == "Pie Chart":
-            plt.pie(self.current_data[column1], labels=self.current_data[column2], autopct='%1.1f%%')
-            plt.title("Pie Chart")
+            plt.pie(self.current_data[column1], labels=self.current_data[column2], autopct='%1.1f%%', colors=sns.color_palette('pastel'))
+            plt.title("Pie Chart", fontsize=16)
         elif graph_name == "Line Plot":
-            sns.lineplot(x=column1, y=column2, data=self.current_data, marker='o', markersize=8, linestyle='-', linewidth=2)
-            plt.title("Line Plot")
+            sns.lineplot(x=column1, y=column2, data=self.current_data, marker='o', markersize=8, linestyle='-', linewidth=2, color='red')
+            plt.title("Line Plot", fontsize=16)
         elif graph_name == "Area Plot":
             sns.lineplot(x=column1, y=column2, data=self.current_data, color='skyblue', marker='o', markersize=8, linestyle='-', linewidth=2)
             plt.fill_between(self.current_data[column1], self.current_data[column2], color="skyblue", alpha=0.4)
-            plt.title("Area Plot")
+            plt.title("Area Plot", fontsize=16)
         elif graph_name == "Violin Plot":
             sns.violinplot(x=column1, y=column2, data=self.current_data)
-            plt.title("Violin Plot")
-        
-        plt.grid(True)  # Add grid lines for better readability
-        plt.xlabel(column1)
-        plt.ylabel(column2)
-        plt.tight_layout()  # Adjust layout for better spacing
-        plt.show()
+            plt.title("Violin Plot", fontsize=16)
+
+        if ax is None:
+            plt.grid(True)  # Add grid lines for better readability
+            plt.xlabel(column1, fontsize=14)
+            plt.ylabel(column2, fontsize=14)
+            plt.tight_layout()  # Adjust layout for better spacing
+            plt.show()
 
 
 
