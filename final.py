@@ -796,7 +796,7 @@ class EmployeeManagementSystem:
             sns.histplot(data=self.current_data[column1], kde=True, ax=ax)
             ax.set_title("Histogram", fontsize=16, fontweight='bold')
             ax.set_xlabel(column1, fontsize=14, fontweight='bold')
-            ax.set_ylabel("Frequency", fontsize=14, fontweight='bold')
+            ax.set_ylabel(column2, fontsize=14, fontweight='bold')
         elif graph_name == "Scatter Plot":
             sns.scatterplot(x=column1, y=column2, data=self.current_data, ax=ax, s=50, marker='o')
             ax.set_title("Scatter Plot", fontsize=16, fontweight='bold')
@@ -809,12 +809,12 @@ class EmployeeManagementSystem:
             ax.set_ylabel(column2, fontsize=14, fontweight='bold')
             ax.legend([column2], fontsize=12)
         elif graph_name == "Line Plot":
-            sns.lineplot(x=column1, y=column2, data=self.current_data, ax=ax)
+            sns.lineplot(x=column1, y=column2, data=self.current_data, ax=ax, marker='o')
             ax.set_title("Line Plot", fontsize=16, fontweight='bold')
             ax.set_xlabel(column1, fontsize=14, fontweight='bold')
             ax.set_ylabel(column2, fontsize=14, fontweight='bold')
         elif graph_name == "Area Plot":
-            sns.lineplot(x=column1, y=column2, data=self.current_data, color='skyblue', ax=ax)
+            sns.lineplot(x=column1, y=column2, data=self.current_data, color='skyblue', ax=ax, marker='o')
             ax.fill_between(self.current_data[column1], self.current_data[column2], color="skyblue", alpha=0.4)
             ax.set_title("Area Plot", fontsize=16, fontweight='bold')
             ax.set_xlabel(column1, fontsize=14, fontweight='bold')
