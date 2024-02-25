@@ -728,46 +728,72 @@ class EmployeeManagementSystem:
         visualization_window.mainloop()
 
     def generate_graph(self, graph_name, column1, column2, ax=None):
-        sns.set_theme()  # Set Seaborn default theme for better aesthetics
-
         if ax is None:
             plt.figure(figsize=(10, 6))  # Adjust the figure size as needed
         else:
             plt.sca(ax)
 
+        # Customize color palette for better appearance
+        sns.set_palette("viridis")  
+
         if graph_name == "Bar Plot":
-            sns.barplot(x=column1, y=column2, data=self.current_data, palette="viridis", ci=None)
-            plt.title("Bar Plot", fontsize=16)
-            plt.xticks(rotation=45, ha='right')  # Rotate x-axis labels for better readability
+            sns.barplot(x=column1, y=column2, data=self.current_data, ax=ax, palette="coolwarm")
+            if ax is not None:
+                ax.set_title("Bar Plot", fontsize=16, fontweight='bold')  
+                ax.set_xlabel(column1, fontsize=14, fontweight='bold')  
+                ax.set_ylabel(column2, fontsize=14, fontweight='bold')  
+                ax.grid(True, linestyle='--', alpha=0.7)  
         elif graph_name == "Histogram":
-            sns.histplot(data=self.current_data[column1], kde=True, color='skyblue')
-            plt.title("Histogram", fontsize=16)
+            sns.histplot(data=self.current_data[column1], kde=True, ax=ax, color="skyblue")
+            if ax is not None:
+                ax.set_title("Histogram", fontsize=16, fontweight='bold')
+                ax.set_xlabel(column1, fontsize=14, fontweight='bold')
+                ax.set_ylabel("Frequency", fontsize=14, fontweight='bold')
+                ax.grid(True, linestyle='--', alpha=0.7)
         elif graph_name == "Scatter Plot":
-            sns.scatterplot(x=column1, y=column2, data=self.current_data, color='green')
-            plt.title("Scatter Plot", fontsize=16)
+            sns.scatterplot(x=column1, y=column2, data=self.current_data, ax=ax, palette="Set2")
+            if ax is not None:
+                ax.set_title("Scatter Plot", fontsize=16, fontweight='bold')
+                ax.set_xlabel(column1, fontsize=14, fontweight='bold')
+                ax.set_ylabel(column2, fontsize=14, fontweight='bold')
+                ax.grid(True, linestyle='--', alpha=0.7)
         elif graph_name == "Box Plot":
-            sns.boxplot(x=column1, y=column2, data=self.current_data, palette="pastel")
-            plt.title("Box Plot", fontsize=16)
-            plt.legend([column2], loc='upper right')  # Move legend to a better position
+            sns.boxplot(x=column1, y=column2, data=self.current_data, ax=ax, palette="Paired")
+            if ax is not None:
+                ax.set_title("Box Plot", fontsize=16, fontweight='bold')
+                ax.set_xlabel(column1, fontsize=14, fontweight='bold')
+                ax.set_ylabel(column2, fontsize=14, fontweight='bold')
+                ax.legend([column2], fontsize=12)
+                ax.grid(True, linestyle='--', alpha=0.7)
         elif graph_name == "Pie Chart":
-            plt.pie(self.current_data[column1], labels=self.current_data[column2], autopct='%1.1f%%', colors=sns.color_palette('pastel'))
-            plt.title("Pie Chart", fontsize=16)
+            ax.pie(self.current_data[column1], labels=self.current_data[column2], autopct='%1.1f%%', colors=sns.color_palette("husl"))
+            if ax is not None:
+                ax.set_title("Pie Chart", fontsize=16, fontweight='bold')
         elif graph_name == "Line Plot":
-            sns.lineplot(x=column1, y=column2, data=self.current_data, marker='o', markersize=8, linestyle='-', linewidth=2, color='red')
-            plt.title("Line Plot", fontsize=16)
+            sns.lineplot(x=column1, y=column2, data=self.current_data, marker='o', markersize=8, linestyle='-', linewidth=2, ax=ax, palette="rocket")
+            if ax is not None:
+                ax.set_title("Line Plot", fontsize=16, fontweight='bold')
+                ax.set_xlabel(column1, fontsize=14, fontweight='bold')
+                ax.set_ylabel(column2, fontsize=14, fontweight='bold')
+                ax.grid(True, linestyle='--', alpha=0.7)
         elif graph_name == "Area Plot":
-            sns.lineplot(x=column1, y=column2, data=self.current_data, color='skyblue', marker='o', markersize=8, linestyle='-', linewidth=2)
-            plt.fill_between(self.current_data[column1], self.current_data[column2], color="skyblue", alpha=0.4)
-            plt.title("Area Plot", fontsize=16)
+            sns.lineplot(x=column1, y=column2, data=self.current_data, color='skyblue', marker='o', markersize=8, linestyle='-', linewidth=2, ax=ax)
+            if ax is not None:
+                ax.fill_between(self.current_data[column1], self.current_data[column2], color="skyblue", alpha=0.4)
+                ax.set_title("Area Plot", fontsize=16, fontweight='bold')
+                ax.set_xlabel(column1, fontsize=14, fontweight='bold')
+                ax.set_ylabel(column2, fontsize=14, fontweight='bold')
+                ax.grid(True, linestyle='--', alpha=0.7)
         elif graph_name == "Violin Plot":
-            sns.violinplot(x=column1, y=column2, data=self.current_data)
-            plt.title("Violin Plot", fontsize=16)
+            sns.violinplot(x=column1, y=column2, data=self.current_data, ax=ax, palette="husl")
+            if ax is not None:
+                ax.set_title("Violin Plot", fontsize=16, fontweight='bold')
+                ax.set_xlabel(column1, fontsize=14, fontweight='bold')
+                ax.set_ylabel(column2, fontsize=14, fontweight='bold')
+                ax.grid(True, linestyle='--', alpha=0.7)
 
         if ax is None:
-            plt.grid(True)  # Add grid lines for better readability
-            plt.xlabel(column1, fontsize=14)
-            plt.ylabel(column2, fontsize=14)
-            plt.tight_layout()  # Adjust layout for better spacing
+            plt.tight_layout()  
             plt.show()
 
 
