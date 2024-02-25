@@ -759,20 +759,27 @@ class EmployeeManagementSystem:
             labels = [textwrap.fill(str(label), width=15) for label in filtered_data[column2] if not pd.isna(label)]
             sizes = filtered_data[column1]
             threshold = 5  
-            filtered_sizes = [size if size >= total_count * threshold / 100 else None for size in sizes]
 
-            # Remove corresponding labels for None values in filtered_sizes
-            labels = [label for label, size in zip(labels, filtered_sizes) if size is not None]
+            # Sort sizes and labels in descending order
+            sorted_sizes, sorted_labels = zip(*sorted(zip(sizes, labels), reverse=True))
 
-            # Remove None values from filtered_sizes
-            filtered_sizes = [size for size in filtered_sizes if size is not None]
+            # Keep the first 4 values with their labels
+            main_sizes = list(sorted_sizes[:4])
+            main_labels = list(sorted_labels[:4])
 
-            ax.pie(filtered_sizes, labels=labels, autopct='%1.1f%%', startangle=140, textprops={'fontsize': 10})
+            # Calculate the sum of the remaining sizes
+            other_percentage = sum(sorted_sizes[4:]) / total_count * 100
+            other_label = 'Other'
+
+            # Add the aggregate percentage of smaller values to the main sizes
+            main_sizes.append(other_percentage)
+            main_labels.append(other_label)
+
+            ax.pie(main_sizes, labels=main_labels, autopct='%1.1f%%', startangle=140, textprops={'fontsize': 10})
             ax.set_title("Pie Chart", fontsize=16, fontweight='bold')
             ax.axis('equal')  
-            ax.legend(loc="center left", fontsize=10, bbox_to_anchor=(1, 0, 0.5, 1)) 
-
-
+            ax.legend(loc="center left", fontsize=10, bbox_to_anchor=(1, 0, 0.5, 1))
+ 
 
         elif graph_name == "Bar Plot":
             sns.barplot(x=column1, y=column2, data=self.current_data, ax=ax)
