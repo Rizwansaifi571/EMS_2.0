@@ -775,10 +775,16 @@ class EmployeeManagementSystem:
             main_sizes.append(other_percentage)
             main_labels.append(other_label)
 
-            ax.pie(main_sizes, labels=main_labels, autopct='%1.1f%%', startangle=140, textprops={'fontsize': 10})
+            # Define colors for each section of the pie chart
+            colors = sns.color_palette('pastel', len(main_sizes))
+
+            # Set a different color for the "Other" category
+            colors[-1] = 'grey'
+
+            ax.pie(main_sizes, labels=main_labels, autopct='%1.1f%%', startangle=140, textprops={'fontsize': 10}, colors=colors)
             ax.set_title("Pie Chart", fontsize=16, fontweight='bold')
             ax.axis('equal')  
-            ax.legend(loc="center left", fontsize=10, bbox_to_anchor=(1, 0, 0.5, 1))
+            ax.legend(loc="center left", fontsize=10, bbox_to_anchor=(1, 0, 0.5, 1))  
  
 
         elif graph_name == "Bar Plot":
