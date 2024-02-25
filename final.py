@@ -9,6 +9,8 @@ from scipy.stats import mode as scipy_mode
 from pandasgui import show
 import matplotlib.pyplot as plt
 import seaborn as sns
+import textwrap
+import numpy as np
 
 class EmployeeManagementSystem:
     def __init__(self, root):
@@ -729,73 +731,90 @@ class EmployeeManagementSystem:
 
     def generate_graph(self, graph_name, column1, column2, ax=None):
         if ax is None:
-            plt.figure(figsize=(10, 6))  # Adjust the figure size as needed
-        else:
-            plt.sca(ax)
+            fig, ax = plt.subplots(figsize=(10, 6))  # Increase figure size
 
-        # Customize color palette for better appearance
-        sns.set_palette("viridis")  
-
+        # Custom color palettes for each plot type
         if graph_name == "Bar Plot":
-            sns.barplot(x=column1, y=column2, data=self.current_data, ax=ax, palette="coolwarm")
-            if ax is not None:
-                ax.set_title("Bar Plot", fontsize=16, fontweight='bold')  
-                ax.set_xlabel(column1, fontsize=14, fontweight='bold')  
-                ax.set_ylabel(column2, fontsize=14, fontweight='bold')  
-                ax.grid(True, linestyle='--', alpha=0.7)  
+            sns.set_palette("pastel")
         elif graph_name == "Histogram":
-            sns.histplot(data=self.current_data[column1], kde=True, ax=ax, color="skyblue")
-            if ax is not None:
-                ax.set_title("Histogram", fontsize=16, fontweight='bold')
-                ax.set_xlabel(column1, fontsize=14, fontweight='bold')
-                ax.set_ylabel("Frequency", fontsize=14, fontweight='bold')
-                ax.grid(True, linestyle='--', alpha=0.7)
+            sns.set_palette("deep")
         elif graph_name == "Scatter Plot":
-            sns.scatterplot(x=column1, y=column2, data=self.current_data, ax=ax, palette="Set2")
-            if ax is not None:
-                ax.set_title("Scatter Plot", fontsize=16, fontweight='bold')
-                ax.set_xlabel(column1, fontsize=14, fontweight='bold')
-                ax.set_ylabel(column2, fontsize=14, fontweight='bold')
-                ax.grid(True, linestyle='--', alpha=0.7)
+            sns.set_palette("bright")
         elif graph_name == "Box Plot":
-            sns.boxplot(x=column1, y=column2, data=self.current_data, ax=ax, palette="Paired")
-            if ax is not None:
-                ax.set_title("Box Plot", fontsize=16, fontweight='bold')
-                ax.set_xlabel(column1, fontsize=14, fontweight='bold')
-                ax.set_ylabel(column2, fontsize=14, fontweight='bold')
-                ax.legend([column2], fontsize=12)
-                ax.grid(True, linestyle='--', alpha=0.7)
+            sns.set_palette("colorblind")
         elif graph_name == "Pie Chart":
-            ax.pie(self.current_data[column1], labels=self.current_data[column2], autopct='%1.1f%%', colors=sns.color_palette("husl"))
-            if ax is not None:
-                ax.set_title("Pie Chart", fontsize=16, fontweight='bold')
+            sns.set_palette("husl")
         elif graph_name == "Line Plot":
-            sns.lineplot(x=column1, y=column2, data=self.current_data, marker='o', markersize=8, linestyle='-', linewidth=2, ax=ax, palette="rocket")
-            if ax is not None:
-                ax.set_title("Line Plot", fontsize=16, fontweight='bold')
-                ax.set_xlabel(column1, fontsize=14, fontweight='bold')
-                ax.set_ylabel(column2, fontsize=14, fontweight='bold')
-                ax.grid(True, linestyle='--', alpha=0.7)
+            sns.set_palette("muted")
         elif graph_name == "Area Plot":
-            sns.lineplot(x=column1, y=column2, data=self.current_data, color='skyblue', marker='o', markersize=8, linestyle='-', linewidth=2, ax=ax)
-            if ax is not None:
-                ax.fill_between(self.current_data[column1], self.current_data[column2], color="skyblue", alpha=0.4)
-                ax.set_title("Area Plot", fontsize=16, fontweight='bold')
-                ax.set_xlabel(column1, fontsize=14, fontweight='bold')
-                ax.set_ylabel(column2, fontsize=14, fontweight='bold')
-                ax.grid(True, linestyle='--', alpha=0.7)
+            sns.set_palette("dark")
         elif graph_name == "Violin Plot":
-            sns.violinplot(x=column1, y=column2, data=self.current_data, ax=ax, palette="husl")
-            if ax is not None:
-                ax.set_title("Violin Plot", fontsize=16, fontweight='bold')
-                ax.set_xlabel(column1, fontsize=14, fontweight='bold')
-                ax.set_ylabel(column2, fontsize=14, fontweight='bold')
-                ax.grid(True, linestyle='--', alpha=0.7)
+            sns.set_palette("Set3")
 
-        if ax is None:
-            plt.tight_layout()  
-            plt.show()
 
+        if graph_name == "Pie Chart":
+            filtered_data = self.current_data[[column1, column2]].dropna()
+
+            total_count = filtered_data[column1].sum()
+            labels = [textwrap.fill(str(label), width=15) for label in filtered_data[column2] if not pd.isna(label)]
+            sizes = filtered_data[column1]
+            threshold = 5  
+            filtered_sizes = [size if size >= total_count * threshold / 100 else None for size in sizes]
+
+            # Remove corresponding labels for None values in filtered_sizes
+            labels = [label for label, size in zip(labels, filtered_sizes) if size is not None]
+
+            # Remove None values from filtered_sizes
+            filtered_sizes = [size for size in filtered_sizes if size is not None]
+
+            ax.pie(filtered_sizes, labels=labels, autopct='%1.1f%%', startangle=140, textprops={'fontsize': 10})
+            ax.set_title("Pie Chart", fontsize=16, fontweight='bold')
+            ax.axis('equal')  
+            ax.legend(loc="center left", fontsize=10, bbox_to_anchor=(1, 0, 0.5, 1)) 
+
+
+
+        elif graph_name == "Bar Plot":
+            sns.barplot(x=column1, y=column2, data=self.current_data, ax=ax)
+            ax.set_title("Bar Plot", fontsize=16, fontweight='bold')
+            ax.set_xlabel(column1, fontsize=14, fontweight='bold')
+            ax.set_ylabel(column2, fontsize=14, fontweight='bold')
+        elif graph_name == "Histogram":
+            sns.histplot(data=self.current_data[column1], kde=True, ax=ax)
+            ax.set_title("Histogram", fontsize=16, fontweight='bold')
+            ax.set_xlabel(column1, fontsize=14, fontweight='bold')
+            ax.set_ylabel("Frequency", fontsize=14, fontweight='bold')
+        elif graph_name == "Scatter Plot":
+            sns.scatterplot(x=column1, y=column2, data=self.current_data, ax=ax, s=50, marker='o')
+            ax.set_title("Scatter Plot", fontsize=16, fontweight='bold')
+            ax.set_xlabel(column1, fontsize=14, fontweight='bold')
+            ax.set_ylabel(column2, fontsize=14, fontweight='bold')
+        elif graph_name == "Box Plot":
+            sns.boxplot(x=column1, y=column2, data=self.current_data, ax=ax)
+            ax.set_title("Box Plot", fontsize=16, fontweight='bold')
+            ax.set_xlabel(column1, fontsize=14, fontweight='bold')
+            ax.set_ylabel(column2, fontsize=14, fontweight='bold')
+            ax.legend([column2], fontsize=12)
+        elif graph_name == "Line Plot":
+            sns.lineplot(x=column1, y=column2, data=self.current_data, ax=ax)
+            ax.set_title("Line Plot", fontsize=16, fontweight='bold')
+            ax.set_xlabel(column1, fontsize=14, fontweight='bold')
+            ax.set_ylabel(column2, fontsize=14, fontweight='bold')
+        elif graph_name == "Area Plot":
+            sns.lineplot(x=column1, y=column2, data=self.current_data, color='skyblue', ax=ax)
+            ax.fill_between(self.current_data[column1], self.current_data[column2], color="skyblue", alpha=0.4)
+            ax.set_title("Area Plot", fontsize=16, fontweight='bold')
+            ax.set_xlabel(column1, fontsize=14, fontweight='bold')
+            ax.set_ylabel(column2, fontsize=14, fontweight='bold')
+        elif graph_name == "Violin Plot":
+            sns.violinplot(x=column1, y=column2, data=self.current_data, ax=ax)
+            ax.set_title("Violin Plot", fontsize=16, fontweight='bold')
+            ax.set_xlabel(column1, fontsize=14, fontweight='bold')
+            ax.set_ylabel(column2, fontsize=14, fontweight='bold')
+
+        ax.grid(True, linestyle=':', linewidth=0.5, color='gray', alpha=0.5)  # Add grid lines with dotted pattern
+        plt.tight_layout()  # Adjust layout for better spacing
+        plt.show()
 
 
 
