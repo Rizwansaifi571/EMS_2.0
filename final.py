@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import textwrap
 import numpy as np
+from tkinter import Scrollbar
 
 class EmployeeManagementSystem:
     def __init__(self, root):
@@ -622,25 +623,41 @@ class EmployeeManagementSystem:
         measured_columns = [col for col in self.current_data.columns if pd.api.types.is_numeric_dtype(self.current_data[col])]
         
         # Measured column box
-        measured_label = tk.Label(left_frame, text="Measured Columns", font=("Arial", 12, "bold"), bg="#d5dbdb")
+        measured_frame = tk.Frame(left_frame, bg="#d5dbdb")
+        measured_frame.pack(pady=5, padx=10, fill=tk.BOTH, expand=True)
+
+        measured_label = tk.Label(measured_frame, text="Measured Columns", font=("Arial", 12, "bold"), bg="#d5dbdb")
         measured_label.pack(pady=5, padx=10, anchor=tk.W)
 
-        measured_listbox = tk.Listbox(left_frame, selectmode="single", height=len(measured_columns), font=("Arial", 10), bd=1, relief=tk.SOLID)
+        measured_scrollbar = Scrollbar(measured_frame, orient="vertical")
+        measured_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        measured_listbox = tk.Listbox(measured_frame, selectmode="single", font=("Arial", 10), bd=1, relief=tk.SOLID, yscrollcommand=measured_scrollbar.set)
         for column in measured_columns:
             measured_listbox.insert(tk.END, column)
-        measured_listbox.pack(pady=5, padx=10, fill=tk.BOTH, expand=True)
+        measured_listbox.pack(side=tk.LEFT, padx=10, fill=tk.BOTH, expand=True)
+
+        measured_scrollbar.config(command=measured_listbox.yview)
 
         # List of all possible dimension columns
         dimension_columns = [col for col in self.current_data.columns if not pd.api.types.is_numeric_dtype(self.current_data[col])]
         
         # Dimension column box
-        dimension_label = tk.Label(left_frame, text="Dimension Columns", font=("Arial", 12, "bold"), bg="#d5dbdb")
+        dimension_frame = tk.Frame(left_frame, bg="#d5dbdb")
+        dimension_frame.pack(pady=5, padx=10, fill=tk.BOTH, expand=True)
+
+        dimension_label = tk.Label(dimension_frame, text="Dimension Columns", font=("Arial", 12, "bold"), bg="#d5dbdb")
         dimension_label.pack(pady=5, padx=10, anchor=tk.W)
 
-        dimension_listbox = tk.Listbox(left_frame, selectmode="single", height=len(dimension_columns), font=("Arial", 10), bd=1, relief=tk.SOLID)
+        dimension_scrollbar = Scrollbar(dimension_frame, orient="vertical")
+        dimension_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        dimension_listbox = tk.Listbox(dimension_frame, selectmode="single", font=("Arial", 10), bd=1, relief=tk.SOLID, yscrollcommand=dimension_scrollbar.set)
         for column in dimension_columns:
             dimension_listbox.insert(tk.END, column)
-        dimension_listbox.pack(pady=5, padx=10, fill=tk.BOTH, expand=True)
+        dimension_listbox.pack(side=tk.LEFT, padx=10, fill=tk.BOTH, expand=True)
+
+        dimension_scrollbar.config(command=dimension_listbox.yview)
 
         # Middle Frame for graph options
         middle_frame = tk.Frame(main_frame_visualization, bg="#ecf0f1", bd=1, relief=tk.SOLID)
