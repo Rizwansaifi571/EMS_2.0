@@ -233,44 +233,57 @@ class EmployeeManagementSystem:
         header_label.pack(pady=15)
 
         # Main Part Frame of data_cleaning
-        main_frame2 = tk.Frame(cleaning_window, bg="#ecf0f1", height=250, bd=1, relief=tk.SOLID)
-        main_frame2.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        main_frame2 = tk.Frame(cleaning_window, bg="#ecf0f1", height=600, bd=1, relief=tk.SOLID)
+        main_frame2.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
 
         # Skyblue Left Frame of data_cleaning
-        menu_frame2 = tk.Frame(main_frame2, bg="darkgrey", width=150, bd=1, relief=tk.SOLID)
+        menu_frame2 = tk.Frame(main_frame2, bg="darkgrey", width=250, bd=1, relief=tk.SOLID)
         menu_frame2.pack(fill=tk.Y, side=tk.LEFT)
 
         # Heading for File Upload
-        file_heading = tk.Label(menu_frame2, text="Functions.", font=("Arial", 14, "bold"), bg="darkgrey", fg="white")
+        file_heading = tk.Label(menu_frame2, text="Functions", font=("Arial", 16, "bold"), bg="darkgrey", fg="white")
         file_heading.pack(pady=10)
 
+        # Define common button style parameters
+        button_bg = "#273746"
+        button_fg = "#ecf0f1"
+        button_width = 25
+        button_height = 2
+        button_padx = 10
+        button_pady = 5
+
+        
         # Add labels for total number of rows and columns
-        rows_label = tk.Label(menu_frame2, text="Rows: {}".format(data.shape[0]), font=("Arial", 12), bg="darkgrey", fg="white")
-        rows_label.pack(pady=5)
+        rows_label = tk.Label(cleaning_window, text="Rows: {}".format(data.shape[0]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
+        rows_label.place(relx=1, rely=1, anchor="se", x=-20, y=-40)  # Adjusted position to leave space for scrollbar
 
-        columns_label = tk.Label(menu_frame2, text="Columns: {}".format(data.shape[1]), font=("Arial", 12), bg="darkgrey", fg="white")
-        columns_label.pack(pady=5)
+        columns_label = tk.Label(cleaning_window, text="Columns: {}".format(data.shape[1]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
+        columns_label.place(relx=1, rely=1, anchor="se", x=-20, y=-20) 
 
-        remove_empty_cells_button = tk.Button(menu_frame2, text="Removing Rows of Empty Cells", command=self.remove_empty_cells, bg="grey", fg="white")
-        remove_empty_cells_button.pack(pady=10)
 
-        replace_empty_values_button = tk.Button(menu_frame2, text="Replace Empty Values", command=self.replace_empty_values, bg="grey", fg="white")
-        replace_empty_values_button.pack(pady=10)
+        # Create buttons with the same style as the main software window buttons
+        remove_empty_cells_button = tk.Button(menu_frame2, text="Removing Rows of Empty Cells", command=self.remove_empty_cells, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
+        remove_empty_cells_button.pack(pady=(10, 5), padx=button_padx)
 
-        replace_using_mean_button = tk.Button(menu_frame2, text="Replace Empty Cells Using Mean", command=self.replace_using_mean, bg="grey", fg="white")
-        replace_using_mean_button.pack(pady=10)
+        replace_empty_values_button = tk.Button(menu_frame2, text="Replace Empty Values", command=self.replace_empty_values, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
+        replace_empty_values_button.pack(pady=5, padx=button_padx)
 
-        replace_using_median_button = tk.Button(menu_frame2, text="Replace Empty Cells Using Median", command=self.replace_using_median, bg="grey", fg="white")
-        replace_using_median_button.pack(pady=10)
+        replace_using_mean_button = tk.Button(menu_frame2, text="Replace Empty Cells Using Mean", command=self.replace_using_mean, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
+        replace_using_mean_button.pack(pady=5, padx=button_padx)
 
-        replace_using_mode_button = tk.Button(menu_frame2, text="Replace Empty Cells Using Mode", command=self.replace_using_mode, bg="grey", fg="white")
-        replace_using_mode_button.pack(pady=10)
+        replace_using_median_button = tk.Button(menu_frame2, text="Replace Empty Cells Using Median", command=self.replace_using_median, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
+        replace_using_median_button.pack(pady=5, padx=button_padx)
 
-        remove_duplicates_button = tk.Button(menu_frame2, text="Remove Duplicates", command=self.remove_duplicates, bg="grey", fg="white")
-        remove_duplicates_button.pack(pady=10)
+        replace_using_mode_button = tk.Button(menu_frame2, text="Replace Empty Cells Using Mode", command=self.replace_using_mode, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
+        replace_using_mode_button.pack(pady=5, padx=button_padx)
 
-        correct_formats_button = tk.Button(menu_frame2, text="Correct Wrong Formats", command=self.correct_wrong_formats, bg="grey", fg="white")
-        correct_formats_button.pack(pady=10)
+        remove_duplicates_button = tk.Button(menu_frame2, text="Remove Duplicates", command=self.remove_duplicates, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
+        remove_duplicates_button.pack(pady=5, padx=button_padx)
+
+        correct_formats_button = tk.Button(menu_frame2, text="Correct Wrong Formats", command=self.correct_wrong_formats, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
+        correct_formats_button.pack(pady=5, padx=button_padx)
+
+
 
         # Main Content Frame (2/3 of Main Part Frame)
         content_frame = ttk.Frame(main_frame2, style="Light.TFrame")
@@ -300,6 +313,8 @@ class EmployeeManagementSystem:
 
         # Display the data in the Treeview widget
         self.display_data_in_treeview(treeview, data)
+
+
 
     def display_data_in_treeview(self, treeview, data):
         if data is not None and isinstance(data, pd.DataFrame):
