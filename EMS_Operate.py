@@ -220,6 +220,7 @@ class EmployeeManagementSystem:
 
     def data_cleaning(self):
         cleaning_window = tk.Toplevel(self.root)
+        cleaning_window.state('zoomed')
         cleaning_window.title("Data Cleaning - Dealing with Empty Cells and Duplicates")
         cleaning_window.configure(bg="#ecf0f1")  # Background color for the cleaning window
 
