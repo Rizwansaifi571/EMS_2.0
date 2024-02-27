@@ -253,12 +253,17 @@ class EmployeeManagementSystem:
         button_pady = 5
 
         
-        # Add labels for total number of rows and columns
-        rows_label = tk.Label(cleaning_window, text="Rows: {}".format(data.shape[0]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
-        rows_label.place(relx=1, rely=1, anchor="se", x=-20, y=-40)  # Adjusted position to leave space for scrollbar
+        # Add a frame to contain rows and columns labels
+        status_frame = tk.Frame(cleaning_window, bg="#ecf0f1")
+        status_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
-        columns_label = tk.Label(cleaning_window, text="Columns: {}".format(data.shape[1]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
-        columns_label.place(relx=1, rely=1, anchor="se", x=-20, y=-20) 
+        # Add labels for total number of rows and columns
+        rows_label = tk.Label(status_frame, text="Rows: {}".format(data.shape[0]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
+        rows_label.pack(side=tk.LEFT, padx=10)
+
+        columns_label = tk.Label(status_frame, text="Columns: {}".format(data.shape[1]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
+        columns_label.pack(side=tk.LEFT, padx=10)
+
 
 
         # Create buttons with the same style as the main software window buttons
