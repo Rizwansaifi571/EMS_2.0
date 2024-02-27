@@ -952,7 +952,6 @@ class EmployeeManagementSystem:
             except Exception as e:
                 messagebox.showerror("Error", f"Error reading {file_type} file: {e}")
 
-
     def display_data(self, file_path, file_type):
         if file_type.lower() == 'csv':
             self.current_data = pd.read_csv(file_path)
@@ -980,36 +979,23 @@ class EmployeeManagementSystem:
         # Update file_path attribute
         self.file_path = file_path
 
-
     def display_in_treeview(self, df):
         # Clear existing data
         for item in self.treeview.get_children():
             self.treeview.delete(item)
 
-        # Update treeview columns
-        columns = ['Row No.'] + list(df.columns)
-        self.treeview["columns"] = columns
+        for col in self.treeview["columns"]:
+            self.treeview.heading(col, text="")
+            self.treeview.column(col, width=0)
 
-        # Configure column headings and widths
-        for col in columns:
+        self.treeview["columns"] = tuple(['Row No.'] + list(df.columns))
+
+        for col in self.treeview["columns"]:
             self.treeview.heading(col, text=col)
             self.treeview.column(col, width=100)
 
-        # Insert data rows
         for index, row in df.iterrows():
             self.treeview.insert("", index, values=tuple([index + 1] + list(row)))
-
-        # Add a frame to contain rows and columns labels
-        status_frame = tk.Frame(bg="#ecf0f1")
-        status_frame.pack(side=tk.BOTTOM, fill=tk.X)
-
-        # Add labels for total number of rows and columns
-        rows_label = tk.Label(status_frame, text="Rows: {}".format(df.shape[0]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
-        rows_label.pack(side=tk.LEFT, padx=10)
-
-        columns_label = tk.Label(status_frame, text="Columns: {}".format(df.shape[1]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
-        columns_label.pack(side=tk.LEFT, padx=10)
-
 
 
 if __name__ == "__main__":
