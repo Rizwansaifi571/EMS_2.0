@@ -22,6 +22,7 @@ class EmployeeManagementSystem:
         # Add file_path attribute
         self.file_path = None
         self.current_data = None
+        self.menu_frame=None
 
         # Header Frame
         self.header_frame = tk.Frame(root, bg="#273746", height=70, bd=1, relief=tk.SOLID)
@@ -224,6 +225,7 @@ class EmployeeManagementSystem:
         cleaning_window.state('zoomed')
         cleaning_window.title("Data Cleaning - Dealing with Empty Cells and Duplicates")
         cleaning_window.configure(bg="#ecf0f1")  # Background color for the cleaning window
+        
 
         # Header Frame of data_cleaning
         header_frame2 = tk.Frame(cleaning_window, bg="#273746", height=70, bd=1, relief=tk.SOLID)
@@ -264,9 +266,12 @@ class EmployeeManagementSystem:
         columns_label = tk.Label(status_frame, text="Columns: {}".format(data.shape[1]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
         columns_label.pack(side=tk.LEFT, padx=10)
 
-
+        # Download Button
+        download_button = tk.Button(status_frame, text="Download Data", command=self.download_data, bg="#273746", fg="#ecf0f1", width=15, bd=1, relief=tk.RAISED)
+        download_button.pack(side=tk.RIGHT, padx=10, pady=5)
 
         # Create buttons with the same style as the main software window buttons
+
         remove_empty_cells_button = tk.Button(menu_frame2, text="Removing Rows of Empty Cells", command=self.remove_empty_cells, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
         remove_empty_cells_button.pack(pady=(10, 5), padx=button_padx)
 
@@ -330,6 +335,19 @@ class EmployeeManagementSystem:
             for index, row in data.iterrows():
                 treeview.insert("", "end", values=list(row))
 
+    def download_data(self):
+        if self.current_data is not None and isinstance(self.current_data, pd.DataFrame):
+            file_path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV files", "*.csv")])
+
+            if file_path:
+                try:
+                    self.current_data.to_csv(file_path, index=False)
+                    messagebox.showinfo("Download Successful", f"Data has been successfully downloaded to:\n{file_path}")
+                except Exception as e:
+                    messagebox.showerror("Error", f"Error while saving data: {e}")
+        else:
+            messagebox.showwarning("No Data", "Please open a file first to load data.")
+
 
     def remove_duplicates(self):
         if self.current_data is not None and isinstance(self.current_data, pd.DataFrame):
@@ -345,6 +363,7 @@ class EmployeeManagementSystem:
                 messagebox.showerror("Error", f"Error removing duplicates: {e}")
         else:
             messagebox.showwarning("No Data", "Please open a file first to load data.")
+
 
     def correct_wrong_formats(self):
         if self.current_data is not None and isinstance(self.current_data, pd.DataFrame):
@@ -929,18 +948,18 @@ class EmployeeManagementSystem:
         if file_path:
             print(f"Opening {file_type} file: {file_path}")
             try:
-                data = self.read_data(file_path, file_type)
-                self.display_data_in_treeview(data)
+                self.display_data(file_path, file_type)
             except Exception as e:
                 messagebox.showerror("Error", f"Error reading {file_type} file: {e}")
 
-    def read_data(self, file_path, file_type):
+
+    def display_data(self, file_path, file_type):
         if file_type.lower() == 'csv':
-            return pd.read_csv(file_path)
+            self.current_data = pd.read_csv(file_path)
         elif file_type.lower() == 'text':
             with open(file_path, 'r') as file:
                 text_data = file.read()
-            return pd.DataFrame({"Text Data": [text_data]})
+            self.current_data = pd.DataFrame({"Text Data": [text_data]})
         elif file_type.lower() == 'excel':
             workbook = openpyxl.load_workbook(file_path)
             sheet = workbook.active
@@ -948,39 +967,48 @@ class EmployeeManagementSystem:
             for row in sheet.iter_rows(min_row=1, values_only=True):
                 data.append(row)
             workbook.close()
-            return pd.DataFrame(data, columns=sheet[1])
+            self.current_data = pd.DataFrame(data, columns=sheet[1])
         elif file_type.lower() == 'word':
             document = Document(file_path)
             text_data = ""
             for paragraph in document.paragraphs:
                 text_data += paragraph.text + "\n"
-            return pd.DataFrame({"Text Data": [text_data]})
-        else:
-            return None
+            self.current_data = pd.DataFrame({"Text Data": [text_data]})
 
-    def display_data_in_treeview(self, data):
-        if data is not None and isinstance(data, pd.DataFrame):
-            columns = list(data.columns)
-            self.treeview["columns"] = columns
-            for col in columns:
-                self.treeview.heading(col, text=col)
-            for index, row in data.iterrows():
-                self.treeview.insert("", "end", values=list(row))
+        self.display_in_treeview(self.current_data)
 
-            # Add a frame to contain rows and columns labels
-            status_frame = tk.Frame(self.treeview, bg="#ecf0f1")
-            status_frame.place(relx=0, rely=1.04, anchor="sw", relwidth=1.0, relheight=0.05)
+        # Update file_path attribute
+        self.file_path = file_path
 
-            # Add a frame to contain rows and columns labels
-            status_frame = tk.Frame(root, bg="#ecf0f1")
-            status_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
-            # Add labels for total number of rows and columns
-            rows_label = tk.Label(status_frame, text="Rows: {}".format(data.shape[0]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
-            rows_label.pack(side=tk.LEFT, padx=10)
+    def display_in_treeview(self, df):
+        # Clear existing data
+        for item in self.treeview.get_children():
+            self.treeview.delete(item)
 
-            columns_label = tk.Label(status_frame, text="Columns: {}".format(data.shape[1]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
-            columns_label.pack(side=tk.LEFT, padx=10)
+        # Update treeview columns
+        columns = ['Row No.'] + list(df.columns)
+        self.treeview["columns"] = columns
+
+        # Configure column headings and widths
+        for col in columns:
+            self.treeview.heading(col, text=col)
+            self.treeview.column(col, width=100)
+
+        # Insert data rows
+        for index, row in df.iterrows():
+            self.treeview.insert("", index, values=tuple([index + 1] + list(row)))
+
+        # Add a frame to contain rows and columns labels
+        status_frame = tk.Frame(bg="#ecf0f1")
+        status_frame.pack(side=tk.BOTTOM, fill=tk.X)
+
+        # Add labels for total number of rows and columns
+        rows_label = tk.Label(status_frame, text="Rows: {}".format(df.shape[0]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
+        rows_label.pack(side=tk.LEFT, padx=10)
+
+        columns_label = tk.Label(status_frame, text="Columns: {}".format(df.shape[1]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
+        columns_label.pack(side=tk.LEFT, padx=10)
 
 
 
