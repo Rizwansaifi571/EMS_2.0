@@ -16,6 +16,7 @@ from tkinter import Scrollbar
 class EmployeeManagementSystem:
     def __init__(self, root):
         self.root = root
+        self.root.state('zoomed')
         self.theme = "light"  # Default theme
 
         # Add file_path attribute
@@ -208,7 +209,7 @@ class EmployeeManagementSystem:
 
     def perform_operation(self, operation):
         if operation == "DATA CLEANING":
-            self.data_cleaning()
+            self.data_cleaning(self.current_data)
         elif operation == "DATA INFORMATION":
             self.data_information()
         elif operation == "DATA VISUALIZATION":
@@ -218,47 +219,97 @@ class EmployeeManagementSystem:
 
     
 
-    def data_cleaning(self):
+    def data_cleaning(self, data):
         cleaning_window = tk.Toplevel(self.root)
         cleaning_window.state('zoomed')
         cleaning_window.title("Data Cleaning - Dealing with Empty Cells and Duplicates")
         cleaning_window.configure(bg="#ecf0f1")  # Background color for the cleaning window
 
         # Header Frame of data_cleaning
-        self.header_frame2 = tk.Frame(cleaning_window, bg="#273746", height=70, bd=1, relief=tk.SOLID)
-        self.header_frame2.pack(fill=tk.X)
+        header_frame2 = tk.Frame(cleaning_window, bg="#273746", height=70, bd=1, relief=tk.SOLID)
+        header_frame2.pack(fill=tk.X)
 
-        header_label = tk.Label(self.header_frame2, text="DATA_CLEANING", font=("Arial", 20, "bold"), bg="#273746", fg="white")
+        header_label = tk.Label(header_frame2, text="DATA_CLEANING", font=("Arial", 20, "bold"), bg="#273746", fg="white")
         header_label.pack(pady=15)
 
         # Main Part Frame of data_cleaning
-        self.main_frame2 = tk.Frame(cleaning_window, bg="#ecf0f1", height=250, bd=1, relief=tk.SOLID)
-        self.main_frame2.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        main_frame2 = tk.Frame(cleaning_window, bg="#ecf0f1", height=250, bd=1, relief=tk.SOLID)
+        main_frame2.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
         # Skyblue Left Frame of data_cleaning
-        self.menu_frame2 = tk.Frame(self.main_frame2, bg="darkgrey", width=150, bd=1, relief=tk.SOLID)
-        self.menu_frame2.pack(fill=tk.Y, side=tk.LEFT)
+        menu_frame2 = tk.Frame(main_frame2, bg="darkgrey", width=150, bd=1, relief=tk.SOLID)
+        menu_frame2.pack(fill=tk.Y, side=tk.LEFT)
 
-        remove_empty_cells_button = tk.Button(self.menu_frame2, text="Removing Rows of Empty Cells", command=self.remove_empty_cells, bg="grey", fg="white")
+        # Heading for File Upload
+        file_heading = tk.Label(menu_frame2, text="Functions.", font=("Arial", 14, "bold"), bg="darkgrey", fg="white")
+        file_heading.pack(pady=10)
+
+        # Add labels for total number of rows and columns
+        rows_label = tk.Label(menu_frame2, text="Rows: {}".format(data.shape[0]), font=("Arial", 12), bg="darkgrey", fg="white")
+        rows_label.pack(pady=5)
+
+        columns_label = tk.Label(menu_frame2, text="Columns: {}".format(data.shape[1]), font=("Arial", 12), bg="darkgrey", fg="white")
+        columns_label.pack(pady=5)
+
+        remove_empty_cells_button = tk.Button(menu_frame2, text="Removing Rows of Empty Cells", command=self.remove_empty_cells, bg="grey", fg="white")
         remove_empty_cells_button.pack(pady=10)
 
-        replace_empty_values_button = tk.Button(self.menu_frame2, text="Replace Empty Values", command=self.replace_empty_values, bg="grey", fg="white")
+        replace_empty_values_button = tk.Button(menu_frame2, text="Replace Empty Values", command=self.replace_empty_values, bg="grey", fg="white")
         replace_empty_values_button.pack(pady=10)
 
-        replace_using_mean_button = tk.Button(self.menu_frame2, text="Replace Empty Cells Using Mean", command=self.replace_using_mean, bg="grey", fg="white")
+        replace_using_mean_button = tk.Button(menu_frame2, text="Replace Empty Cells Using Mean", command=self.replace_using_mean, bg="grey", fg="white")
         replace_using_mean_button.pack(pady=10)
 
-        replace_using_median_button = tk.Button(self.menu_frame2, text="Replace Empty Cells Using Median", command=self.replace_using_median, bg="grey", fg="white")
+        replace_using_median_button = tk.Button(menu_frame2, text="Replace Empty Cells Using Median", command=self.replace_using_median, bg="grey", fg="white")
         replace_using_median_button.pack(pady=10)
 
-        replace_using_mode_button = tk.Button(self.menu_frame2, text="Replace Empty Cells Using Mode", command=self.replace_using_mode, bg="grey", fg="white")
+        replace_using_mode_button = tk.Button(menu_frame2, text="Replace Empty Cells Using Mode", command=self.replace_using_mode, bg="grey", fg="white")
         replace_using_mode_button.pack(pady=10)
 
-        remove_duplicates_button = tk.Button(self.menu_frame2, text="Remove Duplicates", command=self.remove_duplicates, bg="grey", fg="white")
+        remove_duplicates_button = tk.Button(menu_frame2, text="Remove Duplicates", command=self.remove_duplicates, bg="grey", fg="white")
         remove_duplicates_button.pack(pady=10)
 
-        correct_formats_button = tk.Button(self.menu_frame2, text="Correct Wrong Formats", command=self.correct_wrong_formats, bg="grey", fg="white")
+        correct_formats_button = tk.Button(menu_frame2, text="Correct Wrong Formats", command=self.correct_wrong_formats, bg="grey", fg="white")
         correct_formats_button.pack(pady=10)
+
+        # Main Content Frame (2/3 of Main Part Frame)
+        content_frame = ttk.Frame(main_frame2, style="Light.TFrame")
+        content_frame.pack(fill=tk.BOTH, expand=True)
+
+        # Treeview widget for tabular and non-tabular display
+        treeview_frame = ttk.Frame(content_frame, style="Light.TFrame")
+        treeview_frame.pack(expand=True, fill=tk.BOTH)
+
+        treeview_style = ttk.Style()
+        treeview_style.configure("Treeview", font=("Arial", 10), background="#ecf0f1", fieldbackground="#ecf0f1", foreground="#17202a")
+
+        # Configure styles for Light and Dark themes
+        treeview_style.configure("Light.TFrame", background="#ecf0f1")
+        treeview_style.configure("Dark.TFrame", background="#2c3e50")
+
+        treeview = ttk.Treeview(treeview_frame, show="headings", style="Treeview")
+        treeview.pack(expand=True, fill=tk.BOTH)
+
+        y_scrollbar = ttk.Scrollbar(treeview_frame, orient="vertical", command=treeview.yview)
+        y_scrollbar.pack(side="right", fill="y")
+        treeview.configure(yscrollcommand=y_scrollbar.set)
+
+        x_scrollbar = ttk.Scrollbar(treeview_frame, orient="horizontal", command=treeview.xview)
+        x_scrollbar.pack(side="bottom", fill="x")
+        treeview.configure(xscrollcommand=x_scrollbar.set)
+
+        # Display the data in the Treeview widget
+        self.display_data_in_treeview(treeview, data)
+
+    def display_data_in_treeview(self, treeview, data):
+        if data is not None and isinstance(data, pd.DataFrame):
+            columns = list(data.columns)
+            treeview["columns"] = columns
+            for col in columns:
+                treeview.heading(col, text=col)
+            for index, row in data.iterrows():
+                treeview.insert("", "end", values=list(row))
+
 
     def remove_duplicates(self):
         if self.current_data is not None and isinstance(self.current_data, pd.DataFrame):
