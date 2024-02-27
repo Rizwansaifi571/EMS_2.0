@@ -929,17 +929,18 @@ class EmployeeManagementSystem:
         if file_path:
             print(f"Opening {file_type} file: {file_path}")
             try:
-                self.display_data(file_path, file_type)
+                data = self.read_data(file_path, file_type)
+                self.display_data_in_treeview(data)
             except Exception as e:
                 messagebox.showerror("Error", f"Error reading {file_type} file: {e}")
 
-    def display_data(self, file_path, file_type):
+    def read_data(self, file_path, file_type):
         if file_type.lower() == 'csv':
-            self.current_data = pd.read_csv(file_path)
+            return pd.read_csv(file_path)
         elif file_type.lower() == 'text':
             with open(file_path, 'r') as file:
                 text_data = file.read()
-            self.current_data = pd.DataFrame({"Text Data": [text_data]})
+            return pd.DataFrame({"Text Data": [text_data]})
         elif file_type.lower() == 'excel':
             workbook = openpyxl.load_workbook(file_path)
             sheet = workbook.active
@@ -947,36 +948,25 @@ class EmployeeManagementSystem:
             for row in sheet.iter_rows(min_row=1, values_only=True):
                 data.append(row)
             workbook.close()
-            self.current_data = pd.DataFrame(data, columns=sheet[1])
+            return pd.DataFrame(data, columns=sheet[1])
         elif file_type.lower() == 'word':
             document = Document(file_path)
             text_data = ""
             for paragraph in document.paragraphs:
                 text_data += paragraph.text + "\n"
-            self.current_data = pd.DataFrame({"Text Data": [text_data]})
+            return pd.DataFrame({"Text Data": [text_data]})
+        else:
+            return None
 
-        self.display_in_treeview(self.current_data)
+    def display_data_in_treeview(self, data):
+        if data is not None and isinstance(data, pd.DataFrame):
+            columns = list(data.columns)
+            self.treeview["columns"] = columns
+            for col in columns:
+                self.treeview.heading(col, text=col)
+            for index, row in data.iterrows():
+                self.treeview.insert("", "end", values=list(row))
 
-        # Update file_path attribute
-        self.file_path = file_path
-
-    def display_in_treeview(self, df):
-        # Clear existing data
-        for item in self.treeview.get_children():
-            self.treeview.delete(item)
-
-        for col in self.treeview["columns"]:
-            self.treeview.heading(col, text="")
-            self.treeview.column(col, width=0)
-
-        self.treeview["columns"] = tuple(['Row No.'] + list(df.columns))
-
-        for col in self.treeview["columns"]:
-            self.treeview.heading(col, text=col)
-            self.treeview.column(col, width=100)
-
-        for index, row in df.iterrows():
-            self.treeview.insert("", index, values=tuple([index + 1] + list(row)))
 
 
 if __name__ == "__main__":
