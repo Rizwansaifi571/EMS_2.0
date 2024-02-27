@@ -967,6 +967,21 @@ class EmployeeManagementSystem:
             for index, row in data.iterrows():
                 self.treeview.insert("", "end", values=list(row))
 
+            # Add a frame to contain rows and columns labels
+            status_frame = tk.Frame(self.treeview, bg="#ecf0f1")
+            status_frame.place(relx=0, rely=1.04, anchor="sw", relwidth=1.0, relheight=0.05)
+
+            # Add a frame to contain rows and columns labels
+            status_frame = tk.Frame(root, bg="#ecf0f1")
+            status_frame.pack(side=tk.BOTTOM, fill=tk.X)
+
+            # Add labels for total number of rows and columns
+            rows_label = tk.Label(status_frame, text="Rows: {}".format(data.shape[0]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
+            rows_label.pack(side=tk.LEFT, padx=10)
+
+            columns_label = tk.Label(status_frame, text="Columns: {}".format(data.shape[1]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
+            columns_label.pack(side=tk.LEFT, padx=10)
+
 
 
 if __name__ == "__main__":
