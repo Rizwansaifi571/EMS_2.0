@@ -627,8 +627,7 @@ class EmployeeManagementSystem:
                 information_window,
                 columns=("Column", "Data Type", "Unique Values", "Missing Values"),
                 show="headings",
-                selectmode="none",
-                cursor="hand2"  # Set cursor for the first Treeview
+                selectmode="none"
             )
             info_treeview.heading("Column", text="Column")
             info_treeview.heading("Data Type", text="Data Type")
@@ -643,14 +642,17 @@ class EmployeeManagementSystem:
                 info_treeview.insert("", "end", values=(col, data_type, unique_values, missing_values))
 
             info_treeview.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+            
+            # Bind cursor to the first treeview
+            info_treeview.bind("<Enter>", lambda event: information_window.config(cursor="hand2"))
+            info_treeview.bind("<Leave>", lambda event: information_window.config(cursor=""))
 
             # Display dataset information in a Treeview
             info_treeview_summary = ttk.Treeview(
                 information_window,
                 columns=("Info", "Value"),
                 show="headings",
-                selectmode="none",
-                cursor="hand2"  # Set cursor for the second Treeview
+                selectmode="none"
             )
             info_treeview_summary.heading("Info", text="Info")
             info_treeview_summary.heading("Value", text="Value")
@@ -669,8 +671,9 @@ class EmployeeManagementSystem:
 
             info_treeview_summary.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
 
-            # Change cursor style for the entire window
-            information_window.config(cursor="hand2")
+            # Bind cursor to the second treeview
+            info_treeview_summary.bind("<Enter>", lambda event: information_window.config(cursor="hand2"))
+            info_treeview_summary.bind("<Leave>", lambda event: information_window.config(cursor=""))
 
         else:
             messagebox.showwarning("No Data", "Please open a file first to load data.")
