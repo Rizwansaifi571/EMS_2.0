@@ -601,22 +601,40 @@ class EmployeeManagementSystem:
             information_window = tk.Toplevel(self.root)
             information_window.title("Data Information - Displaying Data Information")
             information_window.configure(bg="#ecf0f1")
-            information_window.attributes("-fullscreen", True)  # Open the window in maximized size
+            information_window.state("zoomed")  # Open the window in maximized size
 
             # Header Frame of data_information
-            header_frame_info_data = tk.Frame(information_window, bg="#273746", height=70, bd=1, relief=tk.SOLID)
+            header_frame_info_data = tk.Frame(
+                information_window,
+                bg="#273746",
+                height=70,
+                bd=1,
+                relief=tk.SOLID
+            )
             header_frame_info_data.pack(fill=tk.X)
 
-            header_label_info_data = tk.Label(header_frame_info_data, text="DATA INFORMATION", font=("Arial", 20, "bold"), bg="#273746", fg="white")
+            header_label_info_data = tk.Label(
+                header_frame_info_data,
+                text="DATA INFORMATION",
+                font=("Arial", 20, "bold"),
+                bg="#273746",
+                fg="white"
+            )
             header_label_info_data.pack(pady=15)
 
             # Display dataset information in a Treeview
-            info_treeview = ttk.Treeview(information_window, columns=("Column", "Data Type", "Unique Values", "Missing Values"), show="headings", selectmode="none")
+            info_treeview = ttk.Treeview(
+                information_window,
+                columns=("Column", "Data Type", "Unique Values", "Missing Values"),
+                show="headings",
+                selectmode="none",
+                cursor="hand2"  # Set cursor for the first Treeview
+            )
             info_treeview.heading("Column", text="Column")
             info_treeview.heading("Data Type", text="Data Type")
             info_treeview.heading("Unique Values", text="Unique Values")
             info_treeview.heading("Missing Values", text="Missing Values")
-            
+
             for col in self.current_data.columns:
                 data_type = str(self.current_data[col].dtype)
                 unique_values = len(self.current_data[col].unique())
@@ -627,7 +645,13 @@ class EmployeeManagementSystem:
             info_treeview.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
 
             # Display dataset information in a Treeview
-            info_treeview_summary = ttk.Treeview(information_window, columns=("Info", "Value"), show="headings", selectmode="none")
+            info_treeview_summary = ttk.Treeview(
+                information_window,
+                columns=("Info", "Value"),
+                show="headings",
+                selectmode="none",
+                cursor="hand2"  # Set cursor for the second Treeview
+            )
             info_treeview_summary.heading("Info", text="Info")
             info_treeview_summary.heading("Value", text="Value")
 
@@ -645,11 +669,12 @@ class EmployeeManagementSystem:
 
             info_treeview_summary.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
 
-            # Change cursor style
+            # Change cursor style for the entire window
             information_window.config(cursor="hand2")
 
         else:
             messagebox.showwarning("No Data", "Please open a file first to load data.")
+
 
 
     def data_visualization_window(self):
