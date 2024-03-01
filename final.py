@@ -642,7 +642,7 @@ class EmployeeManagementSystem:
                 info_treeview.insert("", "end", values=(col, data_type, unique_values, missing_values))
 
             info_treeview.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
-            
+
             # Bind cursor to the first treeview
             info_treeview.bind("<Enter>", lambda event: information_window.config(cursor="hand2"))
             info_treeview.bind("<Leave>", lambda event: information_window.config(cursor=""))
