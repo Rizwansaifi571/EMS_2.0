@@ -18,11 +18,14 @@ class EmployeeManagementSystem:
         self.root = root
         self.root.state('zoomed')
         self.theme = "light"  # Default theme
+        self.current_data = None
+        self.status_frame = None  # Initialize status_frame attribute
+        self.create_main_window()
 
         # Add file_path attribute
         self.file_path = None
-        self.current_data = None
 
+    def create_main_window(self):
         # Header Frame
         self.header_frame = tk.Frame(root, bg="#273746", height=70, bd=1, relief=tk.SOLID)
         self.header_frame.pack(fill=tk.X)
@@ -209,7 +212,8 @@ class EmployeeManagementSystem:
 
     def perform_operation(self, operation):
         if operation == "DATA CLEANING":
-            self.data_cleaning(self.current_data)
+            cleaned_data = self.data_cleaning(self.current_data)  # Capture cleaned data here
+            # You can perform any further operations with cleaned_data here
         elif operation == "DATA INFORMATION":
             self.data_information()
         elif operation == "DATA VISUALIZATION":
@@ -220,6 +224,30 @@ class EmployeeManagementSystem:
     
 
     def data_cleaning(self, data):
+        cleaned_data = data.dropna()  # Example data cleaning operation
+        if cleaned_data is not None:  # Check if data is not None
+            self.display_data_in_treeview(cleaned_data)
+
+            # Add a frame to contain rows and columns labels
+            status_frame = tk.Frame(self.treeview, bg="#ecf0f1")
+            status_frame.place(relx=0, rely=1.04, anchor="sw", relwidth=1.0, relheight=0.05)
+
+            # Add labels for total number of rows and columns
+            rows_label = tk.Label(status_frame, text="Rows: {}".format(cleaned_data.shape[0]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
+            rows_label.pack(side=tk.LEFT, padx=10)
+
+            columns_label = tk.Label(status_frame, text="Columns: {}".format(cleaned_data.shape[1]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
+            columns_label.pack(side=tk.LEFT, padx=10)
+        else:
+            # Handle the case where data is None (e.g., display an error message)
+            messagebox.showerror("Error", "No data available for cleaning.")
+
+            return cleaned_data  # Return cleaned_data to capture it for further use
+        
+        # Display cleaned data in Treeview
+        self.display_data_in_treeview(cleaned_data)
+
+
         cleaning_window = tk.Toplevel(self.root)
         cleaning_window.state('zoomed')
         cleaning_window.title("Data Cleaning - Dealing with Empty Cells and Duplicates")
@@ -264,6 +292,9 @@ class EmployeeManagementSystem:
         columns_label = tk.Label(status_frame, text="Columns: {}".format(data.shape[1]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
         columns_label.pack(side=tk.LEFT, padx=10)
 
+        # Download Button
+        download_button = tk.Button(status_frame, text="Download Data", command=self.download_data, bg="#273746", fg="#ecf0f1", width=15, bd=1, relief=tk.RAISED)
+        download_button.pack(side=tk.RIGHT, padx=10, pady=5)
 
 
         # Create buttons with the same style as the main software window buttons
@@ -317,7 +348,7 @@ class EmployeeManagementSystem:
         treeview.configure(xscrollcommand=x_scrollbar.set)
 
         # Display the data in the Treeview widget
-        self.display_data_in_treeview(treeview, data)
+        self.display_data_in_treeview(data)
 
 
 
@@ -330,6 +361,19 @@ class EmployeeManagementSystem:
             for index, row in data.iterrows():
                 treeview.insert("", "end", values=list(row))
 
+    def download_data(self):
+        if self.current_data is not None and isinstance(self.current_data, pd.DataFrame):
+            file_path = filedialog.asksaveasfilename(defaultextension=".csv", filetypes=[("CSV files", "*.csv")])
+
+            if file_path:
+                try:
+                    self.current_data.to_csv(file_path, index=False)
+                    messagebox.showinfo("Download Successful", f"Data has been successfully downloaded to:\n{file_path}")
+                except Exception as e:
+                    messagebox.showerror("Error", f"Error while saving data: {e}")
+        else:
+            messagebox.showwarning("No Data", "Please open a file first to load data.")
+
 
     def remove_duplicates(self):
         if self.current_data is not None and isinstance(self.current_data, pd.DataFrame):
@@ -338,7 +382,7 @@ class EmployeeManagementSystem:
                 self.current_data = self.current_data.drop_duplicates()
 
                 # Refresh the Treeview
-                self.display_in_treeview(self.current_data)
+                self.display_data_in_treeview(self.current_data)
 
                 messagebox.showinfo("Remove Duplicates", "Duplicate rows removed successfully.")
             except Exception as e:
@@ -358,7 +402,7 @@ class EmployeeManagementSystem:
                         self.current_data[column] = pd.to_datetime(self.current_data[column], errors='coerce').dt.strftime('%d-%b-%y')
 
                 # Update the Treeview
-                self.display_in_treeview(self.current_data)
+                self.display_data_in_treeview(self.current_data)
 
                 messagebox.showinfo("Correct Formats", "Wrong formats corrected successfully.")
             except Exception as e:
@@ -377,7 +421,7 @@ class EmployeeManagementSystem:
                     # Remove rows with empty cells or cells containing any value
                     self.current_data = self.current_data.dropna(subset=[column_name], how='any')
                 
-                    self.display_in_treeview(self.current_data)
+                    self.display_data_in_treeview(self.current_data)
                     messagebox.showinfo("Remove Cells", f"All rows with empty cells in column '{column_name}' removed successfully.")
                 except KeyError:
                     messagebox.showwarning("Column Not Found", f"Column '{column_name}' not found.")
@@ -416,7 +460,7 @@ class EmployeeManagementSystem:
                         messagebox.showinfo("Replace Value", f"All NaN values in column '{column_name}' replaced successfully.")
 
                     # Refresh the Treeview
-                    self.display_in_treeview(self.current_data)
+                    self.display_data_in_treeview(self.current_data)
 
                 except ValueError as e:
                     messagebox.showwarning("Invalid Input", str(e))
@@ -456,7 +500,7 @@ class EmployeeManagementSystem:
                         messagebox.showinfo("Replace Value", f"All NaN values in column '{column_name}' replaced with the mean: {column_mean}")
                     
                     # Refresh the Treeview
-                    self.display_in_treeview(self.current_data)
+                    self.display_data_in_treeview(self.current_data)
 
                 except ValueError as e:
                     messagebox.showwarning("Invalid Input", str(e))
@@ -498,7 +542,7 @@ class EmployeeManagementSystem:
                         messagebox.showinfo("Replace Value", f"All NaN values in column '{column_name}' replaced with the median: {column_median}")
 
                     # Refresh the Treeview
-                    self.display_in_treeview(self.current_data)
+                    self.display_data_in_treeview(self.current_data)
 
                 except ValueError as e:
                     messagebox.showwarning("Invalid Input", str(e))
@@ -541,7 +585,7 @@ class EmployeeManagementSystem:
                         messagebox.showinfo("Replace Value", f"All NaN values in column '{column_name}' replaced with the mode: {column_mode}")
 
                     # Refresh the Treeview
-                    self.display_in_treeview(self.current_data)
+                    self.display_data_in_treeview(self.current_data)
 
                 except ValueError as e:
                     messagebox.showwarning("Invalid Input", str(e))
@@ -549,6 +593,8 @@ class EmployeeManagementSystem:
                 messagebox.showwarning("Invalid Input", "Please enter a valid column name.")
         else:
             messagebox.showwarning("No Data", "Please open a file first to load data.")
+
+
 
     def show_data_info(self):
         if self.current_data is not None and isinstance(self.current_data, pd.DataFrame):
@@ -935,6 +981,17 @@ class EmployeeManagementSystem:
                 messagebox.showerror("Error", f"Error reading {file_type} file: {e}")
 
     def read_data(self, file_path, file_type):
+        try:
+            if file_type.lower() == 'csv':
+                data = pd.read_csv(file_path)
+                self.current_data = data  # Update current_data with loaded data
+                return data
+            # Add other file types handling here
+        except Exception as e:
+            print("Error reading CSV file:", e)
+            return None
+
+
         if file_type.lower() == 'csv':
             return pd.read_csv(file_path)
         elif file_type.lower() == 'text':
@@ -967,21 +1024,21 @@ class EmployeeManagementSystem:
             for index, row in data.iterrows():
                 self.treeview.insert("", "end", values=list(row))
 
-            # Add a frame to contain rows and columns labels
-            status_frame = tk.Frame(self.treeview, bg="#ecf0f1")
-            status_frame.place(relx=0, rely=1.04, anchor="sw", relwidth=1.0, relheight=0.05)
+            # Clear the old labels for rows and columns
+            if self.status_frame:
+                for widget in self.status_frame.winfo_children():
+                    widget.destroy()
 
             # Add a frame to contain rows and columns labels
-            status_frame = tk.Frame(root, bg="#ecf0f1")
-            status_frame.pack(side=tk.BOTTOM, fill=tk.X)
+            self.status_frame = tk.Frame(self.root, bg="#ecf0f1")  # Use self.root as the parent widget
+            self.status_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
             # Add labels for total number of rows and columns
-            rows_label = tk.Label(status_frame, text="Rows: {}".format(data.shape[0]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
+            rows_label = tk.Label(self.status_frame, text="Rows: {}".format(data.shape[0]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
             rows_label.pack(side=tk.LEFT, padx=10)
 
-            columns_label = tk.Label(status_frame, text="Columns: {}".format(data.shape[1]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
+            columns_label = tk.Label(self.status_frame, text="Columns: {}".format(data.shape[1]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
             columns_label.pack(side=tk.LEFT, padx=10)
-
 
 
 if __name__ == "__main__":
