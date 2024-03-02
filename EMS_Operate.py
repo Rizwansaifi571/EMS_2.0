@@ -344,6 +344,13 @@ class EmployeeManagementSystem:
         # Display the data in the Treeview widget
         self.display_data_in_treeview(treeview, data)
 
+        # Footer Frame
+        footer_frame = tk.Frame(cleaning_window, bg="#273746", height=30, bd=1, relief=tk.SOLID)
+        footer_frame.pack(fill=tk.X, side=tk.BOTTOM)
+
+        # Footer Label
+        footer_label = tk.Label(footer_frame, text="© 2024 EMS - A Business Intelligence Tool", font=("Arial", 8), bg="#273746", fg="white")
+        footer_label.pack(pady=5)
 
 
     def display_data_in_treeview(self, treeview, data):
@@ -592,6 +599,7 @@ class EmployeeManagementSystem:
     def update_data_cleaning_window_data(self):
         if self.data_cleaning_window and self.cleaning_window_data is not None:
             self.display_data_in_treeview(self.treeview, self.cleaning_window_data)  # Update data in the cleaning window
+            
 
 
 
@@ -606,6 +614,14 @@ class EmployeeManagementSystem:
             information_window.title("Data Information - Displaying Data Information")
             information_window.configure(bg="#ecf0f1")
             information_window.state("zoomed")  # Open the window in maximized size
+
+            # Footer Frame
+            footer_frame = tk.Frame(information_window, bg="#273746", height=30, bd=1, relief=tk.SOLID)
+            footer_frame.pack(fill=tk.X, side=tk.BOTTOM)
+
+            # Footer Label
+            footer_label = tk.Label(footer_frame, text="© 2024 EMS - A Business Intelligence Tool", font=("Arial", 8), bg="#273746", fg="white")
+            footer_label.pack(pady=5)
 
             # Header Frame of data_information
             header_frame_info_data = tk.Frame(
@@ -746,6 +762,8 @@ class EmployeeManagementSystem:
             visualization_window.configure(bg="#ecf0f1")
         else:
             visualization_window.configure(bg="#2c3e50")
+
+        visualization_window.state("zoomed")
         
         # Header Frame of data_visualization_window
         header_frame_visualization = tk.Frame(visualization_window, bg="#273746", height=70, bd=1, relief=tk.SOLID)
