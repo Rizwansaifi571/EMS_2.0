@@ -116,6 +116,23 @@ class EmployeeManagementSystem:
 
         self.set_theme()
 
+    def apply_function(self, func):
+        if func:
+            try:
+                self.current_data = func(self.current_data)  # Apply the function to modify the data
+                self.update_main_window_data()  # Update main window data
+                self.update_data_cleaning_window_data()  # Update data cleaning window data
+                messagebox.showinfo("Success", "Function applied successfully!")
+            except Exception as e:
+                messagebox.showerror("Error", f"An error occurred: {e}")
+        else:
+            messagebox.showerror("Error", "No function selected!")
+
+
+    def update_main_window_data(self):
+        # Update the main window with the updated data
+        self.display_in_treeview(self.current_data)
+
     def dashboard(self):
         selected_graphs = []
         selected_columns = []
@@ -569,6 +586,17 @@ class EmployeeManagementSystem:
                 messagebox.showwarning("Invalid Input", "Please enter a valid column name.")
         else:
             messagebox.showwarning("No Data", "Please open a file first to load data.")
+
+    def update_data_cleaning_window_data(self):
+        if self.data_cleaning_window and self.cleaning_window_data is not None:
+            self.display_data_in_treeview(self.treeview, self.cleaning_window_data)  # Update data in the cleaning window
+
+
+
+
+    def initialize_data_cleaning_window(self):
+        self.data_cleaning_window = tk.Toplevel(self.root)
+        self.data_cleaning_window.title("Data Cleaning")
 
     def show_data_info(self):
         if self.current_data is not None and isinstance(self.current_data, pd.DataFrame):
