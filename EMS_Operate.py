@@ -19,6 +19,8 @@ class EmployeeManagementSystem:
         root.title("EMS - A Business Intelligence Tool")
         self.root.state('zoomed')
         self.theme = "light"  # Default theme
+        self.status_frame = None  # Initialize status_frame attribute
+
 
         # Add file_path attribute
         self.file_path = None
@@ -1059,16 +1061,29 @@ class EmployeeManagementSystem:
         for index, row in df.iterrows():
             self.treeview.insert("", index, values=tuple([index + 1] + list(row)))
 
-        # Add a frame to contain rows and columns labels
-        status_frame = tk.Frame(bg="#ecf0f1")
-        status_frame.pack(side=tk.BOTTOM, fill=tk.X)
+        # Update labels for total number of rows and columns
+        rows_label = "Rows: {}".format(df.shape[0])
+        columns_label = "Columns: {}".format(df.shape[1])
 
-        # Add labels for total number of rows and columns
-        rows_label = tk.Label(status_frame, text="Rows: {}".format(df.shape[0]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
-        rows_label.pack(side=tk.LEFT, padx=10)
+        # Check if labels already exist, if so, update them
+        if hasattr(self, 'rows_label'):
+            self.rows_label.config(text=rows_label)
+        else:
+            self.rows_label = tk.Label(self.status_frame, text=rows_label, font=("Arial", 10), bg="white", fg="#273746")
+            self.rows_label.pack(side=tk.LEFT, padx=10)
 
-        columns_label = tk.Label(status_frame, text="Columns: {}".format(df.shape[1]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
-        columns_label.pack(side=tk.LEFT, padx=10)
+        if hasattr(self, 'columns_label'):
+            self.columns_label.config(text=columns_label)
+        else:
+            self.columns_label = tk.Label(self.status_frame, text=columns_label, font=("Arial", 10), bg="white", fg="#273746")
+            self.columns_label.pack(side=tk.LEFT, padx=10)
+
+        # Update background color of status_frame
+        if self.status_frame:
+            self.status_frame.configure(bg="white")
+        else:
+            self.status_frame = tk.Frame(bg="white")
+            self.status_frame.pack(side=tk.BOTTOM, fill=tk.X)
 
 
 
