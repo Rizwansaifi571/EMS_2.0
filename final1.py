@@ -574,21 +574,39 @@ class EmployeeManagementSystem:
             information_window = tk.Toplevel(self.root)
             information_window.title("Data Information - Displaying Data Information")
             information_window.configure(bg="#ecf0f1")
+            information_window.state("zoomed")  # Open the window in maximized size
 
             # Header Frame of data_information
-            header_frame_info_data = tk.Frame(information_window, bg="#273746", height=70, bd=1, relief=tk.SOLID)
+            header_frame_info_data = tk.Frame(
+                information_window,
+                bg="#273746",
+                height=70,
+                bd=1,
+                relief=tk.SOLID
+            )
             header_frame_info_data.pack(fill=tk.X)
 
-            header_label_info_data = tk.Label(header_frame_info_data, text="DATA INFORMATION", font=("Arial", 20, "bold"), bg="#273746", fg="white")
+            header_label_info_data = tk.Label(
+                header_frame_info_data,
+                text="DATA INFORMATION",
+                font=("Arial", 20, "bold"),
+                bg="#273746",
+                fg="white"
+            )
             header_label_info_data.pack(pady=15)
 
             # Display dataset information in a Treeview
-            info_treeview = ttk.Treeview(information_window, columns=("Column", "Data Type", "Unique Values", "Missing Values"), show="headings", selectmode="none")
+            info_treeview = ttk.Treeview(
+                information_window,
+                columns=("Column", "Data Type", "Unique Values", "Missing Values"),
+                show="headings",
+                selectmode="none"
+            )
             info_treeview.heading("Column", text="Column")
             info_treeview.heading("Data Type", text="Data Type")
             info_treeview.heading("Unique Values", text="Unique Values")
             info_treeview.heading("Missing Values", text="Missing Values")
-            
+
             for col in self.current_data.columns:
                 data_type = str(self.current_data[col].dtype)
                 unique_values = len(self.current_data[col].unique())
@@ -596,26 +614,39 @@ class EmployeeManagementSystem:
 
                 info_treeview.insert("", "end", values=(col, data_type, unique_values, missing_values))
 
-            info_treeview.pack(padx=10, pady=10)
+            info_treeview.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+
+            # Bind cursor to the first treeview
+            info_treeview.bind("<Enter>", lambda event: information_window.config(cursor="hand2"))
+            info_treeview.bind("<Leave>", lambda event: information_window.config(cursor=""))
 
             # Display dataset information in a Treeview
-            info_treeview = ttk.Treeview(information_window, columns=("Info", "Value"), show="headings", selectmode="none")
-            info_treeview.heading("Info", text="Info")
-            info_treeview.heading("Value", text="Value")
+            info_treeview_summary = ttk.Treeview(
+                information_window,
+                columns=("Info", "Value"),
+                show="headings",
+                selectmode="none"
+            )
+            info_treeview_summary.heading("Info", text="Info")
+            info_treeview_summary.heading("Value", text="Value")
 
             # Add rows for each piece of information
-            info_treeview.insert("", "end", values=("Number of Rows", len(self.current_data)))
-            info_treeview.insert("", "end", values=("Number of Columns", len(self.current_data.columns)))
-            info_treeview.insert("", "end", values=("Column Names", ", ".join(self.current_data.columns)))
-            info_treeview.insert("", "end", values=("Data Types", "\n".join([f"{col}: {dtype}" for col, dtype in zip(self.current_data.columns, self.current_data.dtypes)])))
-            info_treeview.insert("", "end", values=("Summary Statistics", ""))
+            info_treeview_summary.insert("", "end", values=("Number of Rows", len(self.current_data)))
+            info_treeview_summary.insert("", "end", values=("Number of Columns", len(self.current_data.columns)))
+            info_treeview_summary.insert("", "end", values=("Column Names", ", ".join(self.current_data.columns)))
+            info_treeview_summary.insert("", "end", values=("Data Types", "\n".join([f"{col}: {dtype}" for col, dtype in zip(self.current_data.columns, self.current_data.dtypes)])))
+            info_treeview_summary.insert("", "end", values=("Summary Statistics", ""))
 
             for col in self.current_data.columns:
                 summary_stats = self.current_data[col].describe().to_dict()
                 for stat, value in summary_stats.items():
-                    info_treeview.insert("", "end", values=(f"{col} - {stat.capitalize()}", value))
+                    info_treeview_summary.insert("", "end", values=(f"{col} - {stat.capitalize()}", value))
 
-            info_treeview.pack(padx=10, pady=10)
+            info_treeview_summary.pack(padx=10, pady=10, fill=tk.BOTH, expand=True)
+
+            # Bind cursor to the second treeview
+            info_treeview_summary.bind("<Enter>", lambda event: information_window.config(cursor="hand2"))
+            info_treeview_summary.bind("<Leave>", lambda event: information_window.config(cursor=""))
 
         else:
             messagebox.showwarning("No Data", "Please open a file first to load data.")
