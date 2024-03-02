@@ -703,13 +703,14 @@ class EmployeeManagementSystem:
     def data_visualization_window(self):
         graph_options = ["Bar Plot", "Histogram", "Scatter Plot", "Box Plot", "Pie Chart", "Line Plot", "Area Plot", "Violin Plot"]
         def update_graph_and_description():
-            selected_graph = graph_listbox.curselection()
-            if selected_graph:
-                selected_graph_index = selected_graph[0]
-                graph_name = graph_options[selected_graph_index]
-                column1 = entry1.get()
-                column2 = entry2.get()
+            selected_graphs = graph_listbox.curselection()
+            if selected_graphs:
                 description_text.delete("1.0", tk.END)
+                for index in selected_graphs:
+                    selected_graph_index = index
+                    graph_name = graph_options[selected_graph_index]
+                    column1 = entry1.get()
+                    column2 = entry2.get()
                 if graph_name == "Bar Plot":
                     description_text.insert(tk.END, "This is a bar plot.\n\n")
                     description_text.insert(tk.END, "A bar plot represents categorical data with rectangular bars. "
@@ -795,15 +796,15 @@ class EmployeeManagementSystem:
         
         # Measured column box
         measured_frame = tk.Frame(left_frame, bg="#d5dbdb")
-        measured_frame.pack(pady=5, padx=10, fill=tk.BOTH, expand=True)
+        measured_frame.pack(pady=(5, 10), padx=10, fill=tk.BOTH, expand=True)
 
-        measured_label = tk.Label(measured_frame, text="Measured Columns", font=("Arial", 12, "bold"), bg="#d5dbdb")
-        measured_label.pack(pady=5, padx=10, anchor=tk.W)
+        measured_label = tk.Label(measured_frame, text="Measured Columns", font=("Arial", 12, "bold"), bg="#d5dbdb", bd=1, relief=tk.SOLID, padx=10, pady=5)
+        measured_label.pack(padx=10, anchor=tk.W)
 
         measured_scrollbar = Scrollbar(measured_frame, orient="vertical")
         measured_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-        measured_listbox = tk.Listbox(measured_frame, selectmode="single", font=("Arial", 10), bd=1, relief=tk.SOLID, yscrollcommand=measured_scrollbar.set)
+        measured_listbox = tk.Listbox(measured_frame, selectmode="browse", font=("Arial", 10), bd=1, width=20, relief=tk.SOLID, yscrollcommand=measured_scrollbar.set)
         for column in measured_columns:
             measured_listbox.insert(tk.END, column)
         measured_listbox.pack(side=tk.LEFT, padx=10, fill=tk.BOTH, expand=True)
@@ -815,15 +816,15 @@ class EmployeeManagementSystem:
         
         # Dimension column box
         dimension_frame = tk.Frame(left_frame, bg="#d5dbdb")
-        dimension_frame.pack(pady=5, padx=10, fill=tk.BOTH, expand=True)
+        dimension_frame.pack(pady=10, padx=10, fill=tk.BOTH, expand=True)
 
-        dimension_label = tk.Label(dimension_frame, text="Dimension Columns", font=("Arial", 12, "bold"), bg="#d5dbdb")
-        dimension_label.pack(pady=5, padx=10, anchor=tk.W)
+        dimension_label = tk.Label(dimension_frame, text="Dimension Columns", font=("Arial", 12, "bold"), bg="#d5dbdb", bd=1, relief=tk.SOLID, padx=10, pady=5)
+        dimension_label.pack(padx=10, anchor=tk.W)
 
         dimension_scrollbar = Scrollbar(dimension_frame, orient="vertical")
         dimension_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-        dimension_listbox = tk.Listbox(dimension_frame, selectmode="single", font=("Arial", 10), bd=1, relief=tk.SOLID, yscrollcommand=dimension_scrollbar.set)
+        dimension_listbox = tk.Listbox(dimension_frame, selectmode="browse", width=25, font=("Arial", 10), bd=1, relief=tk.SOLID, yscrollcommand=dimension_scrollbar.set)
         for column in dimension_columns:
             dimension_listbox.insert(tk.END, column)
         dimension_listbox.pack(side=tk.LEFT, padx=10, fill=tk.BOTH, expand=True)
@@ -877,14 +878,19 @@ class EmployeeManagementSystem:
 
 
         # Graph options label and listbox
-        graph_label = tk.Label(left_frame, text="Graph Options", font=("Arial", 12, "bold"), bg="#d5dbdb", bd=1, relief=tk.SOLID, padx=10, pady=5)
+        graph_label = tk.Label(left_frame, text="Graph Options...", font=("Arial", 12, "bold"), bg="#d5dbdb", bd=1, relief=tk.SOLID, padx=10, pady=5)
         graph_label.pack(pady=10, anchor=tk.W)
 
-        graph_listbox = tk.Listbox(left_frame, selectmode="single", height=len(graph_options), font=("Arial", 12), bd=1, relief=tk.SOLID)
+        graph_scrollbar = Scrollbar(left_frame, orient="vertical")
+        graph_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+        graph_listbox = tk.Listbox(left_frame, selectmode="browse", height=len(graph_options), font=("Arial", 12), width=20, bd=1, relief=tk.SOLID, yscrollcommand=graph_scrollbar.set)
         for option in graph_options:
             graph_listbox.insert(tk.END, option)
         graph_listbox.pack(pady=5, padx=10, fill=tk.BOTH, expand=True)
 
+        graph_scrollbar.config(command=graph_listbox.yview)
+        graph_listbox.configure(cursor="hand2")  # Set cursor here
 
 
         # Right Frame for displaying graph description
@@ -898,14 +904,15 @@ class EmployeeManagementSystem:
         description_text = tk.Text(right_frame, height=2, wrap="word",  bd=1, relief=tk.SOLID)
         description_text.pack(pady=5, padx=10,  fill=tk.BOTH, expand=True)
 
+        # Add Dashboard Button next to Generate Graph Button
+        dashboard_button = tk.Button(right_frame, text="Dashboard", font=("Arial", 10, "bold"), bd=2, relief=tk.SOLID, command=self.dashboard)
+        dashboard_button.pack(pady=10, padx=10, anchor=tk.E)
 
         # Button to generate the graph
-        generate_button = tk.Button(right_frame, text="Generate Graph", font=("Arial", 10, "bold"), command=update_graph_and_description, bd=2, relief=tk.SOLID)
-        generate_button.pack(pady=10, padx=10, anchor=tk.E) 
+        generate_button = tk.Button(right_frame, text="Generate Graph", font=("Arial", 12, "bold"), command=update_graph_and_description, bd=2, relief=tk.SOLID)
+        generate_button.pack(pady=10, padx=10, fill=tk.X, anchor=tk.E) 
 
-        # Add Dashboard Button
-        dashboard_button = tk.Button(left_frame, text="Dashboard", font=("Arial", 12, "bold"), bd=2, relief=tk.SOLID, command=self.dashboard)
-        dashboard_button.pack(pady=10, padx=10, fill=tk.X)
+
 
         # Footer Frame
         footer_frame = tk.Frame(visualization_window, bg="#273746", height=30, bd=1, relief=tk.SOLID)
