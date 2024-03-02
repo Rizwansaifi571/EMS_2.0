@@ -229,7 +229,7 @@ class EmployeeManagementSystem:
             else:
                 messagebox.showwarning("No Data", "Please open a file first to load data.")
         elif operation == "DATA INFORMATION":
-            self.data_information()
+            self.show_data_info()
         elif operation == "DATA VISUALIZATION":
             self.data_visualization_window()
         elif operation == "STATISTIC OF DATA":
