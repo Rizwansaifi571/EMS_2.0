@@ -118,6 +118,17 @@ class EmployeeManagementSystem:
 
         self.set_theme()
 
+    def on_treeview_select(self, event):
+        # Get the selected item from the event
+        selected_item = event.widget.selection()
+
+        # Access the data associated with the selected item
+        item_data = event.widget.item(selected_item)
+
+        # Display the data or perform any other desired action
+        print("Selected item:", selected_item)
+        print("Item data:", item_data)
+
     def dashboard(self):
         selected_graphs = []
         selected_columns = []
@@ -213,8 +224,10 @@ class EmployeeManagementSystem:
 
     def perform_operation(self, operation):
         if operation == "DATA CLEANING":
-            cleaned_data = self.data_cleaning(self.current_data)  # Capture cleaned data here
-            # You can perform any further operations with cleaned_data here
+            if self.current_data is not None:  # Check if data is available
+                self.data_cleaning(self.current_data)  # Pass current_data to the data_cleaning method
+            else:
+                messagebox.showwarning("No Data", "Please open a file first to load data.")
         elif operation == "DATA INFORMATION":
             self.data_information()
         elif operation == "DATA VISUALIZATION":
@@ -225,142 +238,133 @@ class EmployeeManagementSystem:
     
 
     def data_cleaning(self, data):
-        cleaned_data = data.dropna()  # Example data cleaning operation
-        if cleaned_data is not None:  # Check if data is not None
-            self.display_data_in_treeview(cleaned_data)
-
-            # Add a frame to contain rows and columns labels
-            status_frame = tk.Frame(self.treeview, bg="#ecf0f1")
-            status_frame.place(relx=0, rely=1.04, anchor="sw", relwidth=1.0, relheight=0.05)
-
-            # Add labels for total number of rows and columns
-            rows_label = tk.Label(status_frame, text="Rows: {}".format(cleaned_data.shape[0]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
-            rows_label.pack(side=tk.LEFT, padx=10)
-
-            columns_label = tk.Label(status_frame, text="Columns: {}".format(cleaned_data.shape[1]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
-            columns_label.pack(side=tk.LEFT, padx=10)
-        else:
-            # Handle the case where data is None (e.g., display an error message)
-            messagebox.showerror("Error", "No data available for cleaning.")
-
-            return cleaned_data  # Return cleaned_data to capture it for further use
-        
-        # Display cleaned data in Treeview
-        self.display_data_in_treeview(cleaned_data)
-
-
-        cleaning_window = tk.Toplevel(self.root)
-        cleaning_window.state('zoomed')
-        cleaning_window.title("Data Cleaning - Dealing with Empty Cells and Duplicates")
-        cleaning_window.configure(bg="#ecf0f1")  # Background color for the cleaning window
-
-        # Header Frame of data_cleaning
-        header_frame2 = tk.Frame(cleaning_window, bg="#273746", height=70, bd=1, relief=tk.SOLID)
-        header_frame2.pack(fill=tk.X)
-
-        header_label = tk.Label(header_frame2, text="DATA_CLEANING", font=("Arial", 20, "bold"), bg="#273746", fg="white")
-        header_label.pack(pady=15)
-
-        # Main Part Frame of data_cleaning
-        main_frame2 = tk.Frame(cleaning_window, bg="#ecf0f1", height=600, bd=1, relief=tk.SOLID)
-        main_frame2.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
-
-        # Skyblue Left Frame of data_cleaning
-        menu_frame2 = tk.Frame(main_frame2, bg="darkgrey", width=250, bd=1, relief=tk.SOLID)
-        menu_frame2.pack(fill=tk.Y, side=tk.LEFT)
-
-        # Heading for File Upload
-        file_heading = tk.Label(menu_frame2, text="Functions", font=("Arial", 16, "bold"), bg="darkgrey", fg="white")
-        file_heading.pack(pady=10)
-
-        # Define common button style parameters
-        button_bg = "#273746"
-        button_fg = "#ecf0f1"
-        button_width = 25
-        button_height = 2
-        button_padx = 10
-        button_pady = 5
-
-        
-        # Add a frame to contain rows and columns labels
-        status_frame = tk.Frame(cleaning_window, bg="#ecf0f1")
-        status_frame.pack(side=tk.BOTTOM, fill=tk.X)
-
-        # Add labels for total number of rows and columns
-        rows_label = tk.Label(status_frame, text="Rows: {}".format(data.shape[0]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
-        rows_label.pack(side=tk.LEFT, padx=10)
-
-        columns_label = tk.Label(status_frame, text="Columns: {}".format(data.shape[1]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
-        columns_label.pack(side=tk.LEFT, padx=10)
-
-        # Download Button
-        download_button = tk.Button(status_frame, text="Download Data", command=self.download_data, bg="#273746", fg="#ecf0f1", width=15, bd=1, relief=tk.RAISED)
-        download_button.pack(side=tk.RIGHT, padx=10, pady=5)
-
-
-        # Create buttons with the same style as the main software window buttons
-        remove_empty_cells_button = tk.Button(menu_frame2, text="Removing Rows of Empty Cells", command=self.remove_empty_cells, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
-        remove_empty_cells_button.pack(pady=(10, 5), padx=button_padx)
-
-        replace_empty_values_button = tk.Button(menu_frame2, text="Replace Empty Values", command=self.replace_empty_values, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
-        replace_empty_values_button.pack(pady=5, padx=button_padx)
-
-        replace_using_mean_button = tk.Button(menu_frame2, text="Replace Empty Cells Using Mean", command=self.replace_using_mean, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
-        replace_using_mean_button.pack(pady=5, padx=button_padx)
-
-        replace_using_median_button = tk.Button(menu_frame2, text="Replace Empty Cells Using Median", command=self.replace_using_median, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
-        replace_using_median_button.pack(pady=5, padx=button_padx)
-
-        replace_using_mode_button = tk.Button(menu_frame2, text="Replace Empty Cells Using Mode", command=self.replace_using_mode, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
-        replace_using_mode_button.pack(pady=5, padx=button_padx)
-
-        remove_duplicates_button = tk.Button(menu_frame2, text="Remove Duplicates", command=self.remove_duplicates, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
-        remove_duplicates_button.pack(pady=5, padx=button_padx)
-
-        correct_formats_button = tk.Button(menu_frame2, text="Correct Wrong Formats", command=self.correct_wrong_formats, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
-        correct_formats_button.pack(pady=5, padx=button_padx)
-
-
-
-        # Main Content Frame (2/3 of Main Part Frame)
-        content_frame = ttk.Frame(main_frame2, style="Light.TFrame")
-        content_frame.pack(fill=tk.BOTH, expand=True)
-
-        # Treeview widget for tabular and non-tabular display
-        treeview_frame = ttk.Frame(content_frame, style="Light.TFrame")
-        treeview_frame.pack(expand=True, fill=tk.BOTH)
-
-        treeview_style = ttk.Style()
-        treeview_style.configure("Treeview", font=("Arial", 10), background="#ecf0f1", fieldbackground="#ecf0f1", foreground="#17202a")
-
-        # Configure styles for Light and Dark themes
-        treeview_style.configure("Light.TFrame", background="#ecf0f1")
-        treeview_style.configure("Dark.TFrame", background="#2c3e50")
-
-        treeview = ttk.Treeview(treeview_frame, show="headings", style="Treeview")
-        treeview.pack(expand=True, fill=tk.BOTH)
-
-        y_scrollbar = ttk.Scrollbar(treeview_frame, orient="vertical", command=treeview.yview)
-        y_scrollbar.pack(side="right", fill="y")
-        treeview.configure(yscrollcommand=y_scrollbar.set)
-
-        x_scrollbar = ttk.Scrollbar(treeview_frame, orient="horizontal", command=treeview.xview)
-        x_scrollbar.pack(side="bottom", fill="x")
-        treeview.configure(xscrollcommand=x_scrollbar.set)
-
-        # Display the data in the Treeview widget
-        self.display_data_in_treeview(data)
-
-
-
-    def display_data_in_treeview(self, treeview, data):
         if data is not None and isinstance(data, pd.DataFrame):
-            columns = list(data.columns)
-            treeview["columns"] = columns
-            for col in columns:
-                treeview.heading(col, text=col)
-            for index, row in data.iterrows():
-                treeview.insert("", "end", values=list(row))
+            cleaned_data = data.dropna()  # Example data cleaning operation
+            if cleaned_data is not None:  # Check if data is not None
+                # Display cleaned data in Treeview
+                self.display_data_in_treeview(cleaned_data)
+
+                
+                cleaning_window = tk.Toplevel(self.root)
+                cleaning_window.state('zoomed')
+                cleaning_window.title("Data Cleaning - Dealing with Empty Cells and Duplicates")
+                cleaning_window.configure(bg="#ecf0f1")  # Background color for the cleaning window
+
+                # Header Frame of data_cleaning
+                header_frame2 = tk.Frame(cleaning_window, bg="#273746", height=70, bd=1, relief=tk.SOLID)
+                header_frame2.pack(fill=tk.X)
+
+                header_label = tk.Label(header_frame2, text="DATA_CLEANING", font=("Arial", 20, "bold"), bg="#273746", fg="white")
+                header_label.pack(pady=15)
+
+                # Main Part Frame of data_cleaning
+                main_frame2 = tk.Frame(cleaning_window, bg="#ecf0f1", height=600, bd=1, relief=tk.SOLID)
+                main_frame2.pack(fill=tk.BOTH, expand=True, padx=20, pady=20)
+
+                # Skyblue Left Frame of data_cleaning
+                menu_frame2 = tk.Frame(main_frame2, bg="darkgrey", width=250, bd=1, relief=tk.SOLID)
+                menu_frame2.pack(fill=tk.Y, side=tk.LEFT)
+
+                # Add a frame to contain rows and columns labels
+                status_frame = tk.Frame(cleaning_window, bg="#ecf0f1")
+                status_frame.pack(side=tk.BOTTOM, fill=tk.X)
+
+                # Add labels for total number of rows and columns
+                rows_label = tk.Label(status_frame, text="Rows: {}".format(data.shape[0]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
+                rows_label.pack(side=tk.LEFT, padx=10)
+
+                columns_label = tk.Label(status_frame, text="Columns: {}".format(data.shape[1]), font=("Arial", 10), bg="#ecf0f1", fg="#273746")
+                columns_label.pack(side=tk.LEFT, padx=10)
+
+                # Download Button
+                download_button = tk.Button(status_frame, text="Download Data", command=self.download_data, bg="#273746", fg="#ecf0f1", width=15, bd=1, relief=tk.RAISED)
+                download_button.pack(side=tk.RIGHT, padx=10, pady=5)
+
+                # Define common button style parameters
+                button_bg = "#273746"
+                button_fg = "#ecf0f1"
+                button_width = 25
+                button_height = 2
+                button_padx = 10
+                button_pady = 5
+
+                # Create buttons with the same style as the main software window buttons
+                remove_empty_cells_button = tk.Button(menu_frame2, text="Removing Rows of Empty Cells", command=self.remove_empty_cells, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
+                remove_empty_cells_button.pack(pady=(10, 5), padx=button_padx)
+
+                replace_empty_values_button = tk.Button(menu_frame2, text="Replace Empty Values", command=self.replace_empty_values, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
+                replace_empty_values_button.pack(pady=5, padx=button_padx)
+
+                replace_using_mean_button = tk.Button(menu_frame2, text="Replace Empty Cells Using Mean", command=self.replace_using_mean, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
+                replace_using_mean_button.pack(pady=5, padx=button_padx)
+
+                replace_using_median_button = tk.Button(menu_frame2, text="Replace Empty Cells Using Median", command=self.replace_using_median, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
+                replace_using_median_button.pack(pady=5, padx=button_padx)
+
+                replace_using_mode_button = tk.Button(menu_frame2, text="Replace Empty Cells Using Mode", command=self.replace_using_mode, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
+                replace_using_mode_button.pack(pady=5, padx=button_padx)
+
+                remove_duplicates_button = tk.Button(menu_frame2, text="Remove Duplicates", command=self.remove_duplicates, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
+                remove_duplicates_button.pack(pady=5, padx=button_padx)
+
+                correct_formats_button = tk.Button(menu_frame2, text="Correct Wrong Formats", command=self.correct_wrong_formats, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
+                correct_formats_button.pack(pady=5, padx=button_padx)
+
+                # Main Content Frame (2/3 of Main Part Frame)
+                content_frame = ttk.Frame(main_frame2, style="Light.TFrame")
+                content_frame.pack(fill=tk.BOTH, expand=True)
+
+                # Treeview widget for tabular and non-tabular display
+                treeview_frame = ttk.Frame(content_frame, style="Light.TFrame")
+                treeview_frame.pack(expand=True, fill=tk.BOTH)
+
+                treeview_style = ttk.Style()
+                treeview_style.configure("Treeview", font=("Arial", 10), background="#ecf0f1", fieldbackground="#ecf0f1", foreground="#17202a")
+
+                # Configure styles for Light and Dark themes
+                treeview_style.configure("Light.TFrame", background="#ecf0f1")
+                treeview_style.configure("Dark.TFrame", background="#2c3e50")
+
+                treeview = ttk.Treeview(treeview_frame, show="headings", style="Treeview")
+                treeview.pack(expand=True, fill=tk.BOTH)
+
+                y_scrollbar = ttk.Scrollbar(treeview_frame, orient="vertical", command=treeview.yview)
+                y_scrollbar.pack(side=tk.RIGHT, fill="y")
+
+                x_scrollbar = ttk.Scrollbar(treeview_frame, orient="horizontal", command=treeview.xview)
+                x_scrollbar.pack(side=tk.BOTTOM, fill="x")
+
+                treeview.configure(yscrollcommand=y_scrollbar.set, xscrollcommand=x_scrollbar.set)
+
+                self.treeview = treeview  # Assign the treeview to an instance variable for further use
+
+                # Bind a function to the Treeview selection event
+                self.treeview.bind("<<TreeviewSelect>>", self.on_treeview_select)
+
+                # Insert columns into the Treeview
+                for col in cleaned_data.columns:
+                    self.treeview.heading(col, text=col)
+                # Insert data rows into the Treeview
+                for i, row in cleaned_data.iterrows():
+                    self.treeview.insert("", "end", values=list(row))
+
+            else:
+                messagebox.showerror("Data Cleaning Error", "No cleaned data available.")
+        else:
+            messagebox.showerror("Data Cleaning Error", "Invalid data provided.")
+
+
+
+
+    def display_data_in_treeview(self, data):
+        """Display data in the Treeview widget."""
+        # Clear existing data in the Treeview
+        self.treeview.delete(*self.treeview.get_children())
+
+        # Insert data rows into the Treeview
+        for i, row in data.iterrows():
+            self.treeview.insert("", "end", values=list(row))
+
 
     def download_data(self):
         if self.current_data is not None and isinstance(self.current_data, pd.DataFrame):
