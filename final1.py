@@ -16,6 +16,7 @@ from tkinter import Scrollbar
 class EmployeeManagementSystem:
     def __init__(self, root):
         self.root = root
+        root.title("EMS - A Business Intelligence Tool")
         self.root.state('zoomed')
         self.theme = "light"  # Default theme
 
