@@ -1073,7 +1073,7 @@ class EmployeeManagementSystem:
             # Configure column headings and widths
             for col in columns:
                 self.treeview.heading(col, text=col, anchor=tk.CENTER)
-                self.treeview.column(col, minwidth=100, anchor=tk.CENTER)
+                self.treeview.column(col, minwidth=150, anchor=tk.CENTER)
 
             # Insert data rows
             for index, row in df.iterrows():
