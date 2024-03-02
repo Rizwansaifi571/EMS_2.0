@@ -1044,46 +1044,38 @@ class EmployeeManagementSystem:
 
 
     def display_in_treeview(self, df):
-        # Clear existing data
-        for item in self.treeview.get_children():
-            self.treeview.delete(item)
+            # Clear existing data
+            for item in self.treeview.get_children():
+                self.treeview.delete(item)
 
-        # Update treeview columns
-        columns = ['Row No.'] + list(df.columns)
-        self.treeview["columns"] = columns
+            # Update treeview columns
+            columns = ['Row No.'] + list(df.columns)
+            self.treeview["columns"] = columns
 
-        # Configure column headings and widths
-        for col in columns:
-            self.treeview.heading(col, text=col)
-            self.treeview.column(col, width=100)
+            # Configure column headings and widths
+            for col in columns:
+                self.treeview.heading(col, text=col, anchor=tk.CENTER)
+                self.treeview.column(col, minwidth=100, anchor=tk.CENTER)
 
-        # Insert data rows
-        for index, row in df.iterrows():
-            self.treeview.insert("", index, values=tuple([index + 1] + list(row)))
+            # Insert data rows
+            for index, row in df.iterrows():
+                values = [index + 1] + list(row)
+                self.treeview.insert("", index, values=values)
 
-        # Update labels for total number of rows and columns
-        rows_label = "Rows: {}".format(df.shape[0])
-        columns_label = "Columns: {}".format(df.shape[1])
+            # Add a frame to contain rows and columns labels
+            if self.status_frame is not None:
+                self.status_frame.pack_forget()  # Remove the status frame from view
 
-        # Check if labels already exist, if so, update them
-        if hasattr(self, 'rows_label'):
-            self.rows_label.config(text=rows_label)
-        else:
-            self.rows_label = tk.Label(self.status_frame, text=rows_label, font=("Arial", 10), bg="white", fg="#273746")
-            self.rows_label.pack(side=tk.LEFT, padx=10)
-
-        if hasattr(self, 'columns_label'):
-            self.columns_label.config(text=columns_label)
-        else:
-            self.columns_label = tk.Label(self.status_frame, text=columns_label, font=("Arial", 10), bg="white", fg="#273746")
-            self.columns_label.pack(side=tk.LEFT, padx=10)
-
-        # Update background color of status_frame
-        if self.status_frame:
-            self.status_frame.configure(bg="white")
-        else:
+            # Create and pack the status frame
             self.status_frame = tk.Frame(bg="white")
             self.status_frame.pack(side=tk.BOTTOM, fill=tk.X)
+
+            # Add labels for total number of rows and columns
+            rows_label = tk.Label(self.status_frame, text="Rows: {}".format(df.shape[0]), font=("Arial", 10), bg="white", fg="#273746")
+            rows_label.pack(side=tk.LEFT, padx=10)
+
+            columns_label = tk.Label(self.status_frame, text="Columns: {}".format(df.shape[1]), font=("Arial", 10), bg="white", fg="#273746")
+            columns_label.pack(side=tk.LEFT, padx=10)
 
 
 
