@@ -12,6 +12,9 @@ import seaborn as sns
 import textwrap
 import numpy as np
 from tkinter import Scrollbar
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import r2_score
 
 class EmployeeManagementSystem:
     def __init__(self, root):
@@ -753,6 +756,10 @@ class EmployeeManagementSystem:
                                                     "probability density of the data at different values.\n")
                 self.generate_graph(graph_name, column1, column2)
 
+        # Example usage:
+        data_visualizer = EmployeeManagementSystem(self.root)
+        data_visualizer.generate_prediction('FeatureColumn', 'TargetColumn')
+        
         # Create a new Toplevel window
         visualization_window = tk.Toplevel(self.root)
         visualization_window.title("Data Visualization")
@@ -907,6 +914,11 @@ class EmployeeManagementSystem:
         # Add Dashboard Button next to Generate Graph Button
         dashboard_button = tk.Button(right_frame, text="Dashboard", font=("Arial", 10, "bold"), bd=2, relief=tk.SOLID, command=self.dashboard)
         dashboard_button.pack(pady=10, padx=10, anchor=tk.E)
+
+        # Button for prediction
+        prediction_button = tk.Button(right_frame, text="Prediction", font=("Arial", 10, "bold"), bd=2, relief=tk.SOLID, command=generate_prediction)
+        prediction_button.pack(pady=10, padx=10, anchor=tk.W)
+
 
         # Button to generate the graph
         generate_button = tk.Button(right_frame, text="Generate Graph", font=("Arial", 12, "bold"), command=update_graph_and_description, bd=2, relief=tk.SOLID)
