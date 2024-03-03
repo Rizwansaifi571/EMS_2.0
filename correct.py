@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import ttk, filedialog, messagebox, simpledialog
 from tkinter.simpledialog import askstring
 from PIL import Image, ImageTk
 import pandas as pd
@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import textwrap
 import numpy as np
+import pymysql
 from tkinter import Scrollbar
 
 class EmployeeManagementSystem:
@@ -65,7 +66,7 @@ class EmployeeManagementSystem:
         file_heading.pack(pady=10)
 
         # Buttons for Different File Types
-        file_types = ["CSV", "Text", "Excel", "Word"]
+        file_types = ["CSV", "Text", "Excel", "Word","MySQL Server"]
         for file_type in file_types:
             button = tk.Button(self.menu_frame, text=f"Open {file_type}", command=lambda ft=file_type: self.open_file(ft),
                                bg="#273746", fg="#ecf0f1", width=15, bd=1, relief=tk.RAISED)
@@ -1030,14 +1031,61 @@ class EmployeeManagementSystem:
         messagebox.showinfo("Statistic of Data", "Calculating Statistics")
 
     def open_file(self, file_type):
-        file_extension = file_type.lower()
-        file_path = filedialog.askopenfilename(title=f"Select {file_type} File", filetypes=[(f"{file_type} files", f"*.{file_extension}")])
-        if file_path:
-            print(f"Opening {file_type} file: {file_path}")
+        if file_type != "MySQL Server":
+            file_extension = file_type.lower()
+            file_path = filedialog.askopenfilename(title=f"Select {file_type} File", filetypes=[(f"{file_type} files", f"*.{file_extension}")])
+            if file_path:
+                print(f"Opening {file_type} file: {file_path}")
+                try:
+                    self.display_data(file_path, file_type)
+                except Exception as e:
+                    messagebox.showerror("Error", f"Error reading {file_type} file: {e}")
+        else:
             try:
-                self.display_data(file_path, file_type)
-            except Exception as e:
-                messagebox.showerror("Error", f"Error reading {file_type} file: {e}")
+                self.mysql_connection_dialog()
+            except:
+                messagebox.showerror("Error", "Error connecting to MySQL Server.")
+    
+    def mysql_connection_dialog(self):
+        # Dialog for MySQL connection details
+        host = simpledialog.askstring("MySQL Connection", "Enter Host:")
+        user = simpledialog.askstring("MySQL Connection", "Enter User:")
+        password = simpledialog.askstring("MySQL Connection", "Enter Password:", show="*")
+        database = simpledialog.askstring("MySQL Connection", "Enter Database:")
+
+        if host and user and password and database:
+            # Attempt to establish a MySQL connection
+            try:
+                self.mysql_conn = pymysql.connect(host=host, user=user, password=password, database=database)
+                self.select_mysql_table()
+            except pymysql.MySQLError as e:
+                messagebox.showerror("MySQL Connection Error", f"Error connecting to MySQL Server: {e}")
+        else:
+            messagebox.showwarning("MySQL Connection", "Connection details are incomplete.")
+
+    def select_mysql_table(self):
+        cursor = self.mysql_conn.cursor()
+        cursor.execute("SHOW TABLES;")
+        tables = [table[0] for table in cursor.fetchall()]
+        
+        # Ask user to select a table
+        table = simpledialog.askstring("Select Table", f"Enter table name from list: {', '.join(tables)}")
+        if table in tables:
+            # Fetching the data from the selected table
+            query = f"SELECT * FROM {table}"
+            cursor.execute(query)
+            data = cursor.fetchall()
+            
+            # Fetching column names
+            columns = [desc[0] for desc in cursor.description]
+            
+            # Converting the data into a Pandas DataFrame
+            df = pd.DataFrame(data, columns=columns)
+            
+            # Displaying the data using the existing display_in_treeview method
+            self.display_in_treeview(df)
+        else:
+            messagebox.showerror("Table Selection", "Invalid table name or table does not exist.")
 
 
     def display_data(self, file_path, file_type):
