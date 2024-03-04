@@ -1,20 +1,23 @@
 import tkinter as tk
-from tkinter import ttk, filedialog, messagebox
+from tkinter import ttk, filedialog, messagebox, simpledialog
 from tkinter.simpledialog import askstring
-from PIL import Image, ImageTk
 import pandas as pd
+from tkinter import ttk
 import openpyxl
+from PIL import Image, ImageTk
 from docx import Document
-from scipy.stats import mode as scipy_mode
-from pandasgui import show
 import matplotlib.pyplot as plt
 import seaborn as sns
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import textwrap
-import numpy as np
+import pymysql
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
 from tkinter import Scrollbar
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import r2_score
+from pandasgui import show
+from scipy.stats import mode as scipy_mode
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_auc_score, roc_curve
 
 class EmployeeManagementSystem:
     def __init__(self, root):
@@ -50,7 +53,7 @@ class EmployeeManagementSystem:
         self.bottom_frame.pack(fill=tk.X)
 
         # Buttons for Data Operations
-        data_operations = ["DATA CLEANING", "DATA INFORMATION", "DATA VISUALIZATION", "STATISTIC OF DATA"]
+        data_operations = ["DATA CLEANING", "DATA INFORMATION", "DATA VISUALIZATION", "PREDICTION"]
         for operation in data_operations:
             if operation == "DATA INFORMATION":
                 operation_button = tk.Button(self.bottom_frame, text=operation, command=self.show_data_info, bg="#273746", fg="#ecf0f1", width=17, bd=1, relief=tk.RAISED)
@@ -68,7 +71,7 @@ class EmployeeManagementSystem:
         file_heading.pack(pady=10)
 
         # Buttons for Different File Types
-        file_types = ["CSV", "Text", "Excel", "Word"]
+        file_types = ["CSV", "Text", "Excel", "Word","MySQL Server"]
         for file_type in file_types:
             button = tk.Button(self.menu_frame, text=f"Open {file_type}", command=lambda ft=file_type: self.open_file(ft),
                                bg="#273746", fg="#ecf0f1", width=15, bd=1, relief=tk.RAISED)
@@ -238,8 +241,8 @@ class EmployeeManagementSystem:
             self.data_information()
         elif operation == "DATA VISUALIZATION":
             self.data_visualization_window()
-        elif operation == "STATISTIC OF DATA":
-            self.statistic_of_data()
+        elif operation == "PREDICTION":
+            self.predict_attrition()
 
     
 
@@ -650,7 +653,7 @@ class EmployeeManagementSystem:
                 information_window,
                 columns=("Column", "Data Type", "Unique Values", "Missing Values"),
                 show="headings",
-                selectmode="none"
+                selectmode="browse"
             )
             info_treeview.heading("Column", text="Column")
             info_treeview.heading("Data Type", text="Data Type")
@@ -675,7 +678,7 @@ class EmployeeManagementSystem:
                 information_window,
                 columns=("Info", "Value"),
                 show="headings",
-                selectmode="none"
+                selectmode="browse"
             )
             info_treeview_summary.heading("Info", text="Info")
             info_treeview_summary.heading("Value", text="Value")
@@ -756,10 +759,6 @@ class EmployeeManagementSystem:
                                                     "probability density of the data at different values.\n")
                 self.generate_graph(graph_name, column1, column2)
 
-        # Example usage:
-        data_visualizer = EmployeeManagementSystem(self.root)
-        data_visualizer.generate_prediction('FeatureColumn', 'TargetColumn')
-        
         # Create a new Toplevel window
         visualization_window = tk.Toplevel(self.root)
         visualization_window.title("Data Visualization")
@@ -915,11 +914,6 @@ class EmployeeManagementSystem:
         dashboard_button = tk.Button(right_frame, text="Dashboard", font=("Arial", 10, "bold"), bd=2, relief=tk.SOLID, command=self.dashboard)
         dashboard_button.pack(pady=10, padx=10, anchor=tk.E)
 
-        # Button for prediction
-        prediction_button = tk.Button(right_frame, text="Prediction", font=("Arial", 10, "bold"), bd=2, relief=tk.SOLID, command=generate_prediction)
-        prediction_button.pack(pady=10, padx=10, anchor=tk.W)
-
-
         # Button to generate the graph
         generate_button = tk.Button(right_frame, text="Generate Graph", font=("Arial", 12, "bold"), command=update_graph_and_description, bd=2, relief=tk.SOLID)
         generate_button.pack(pady=10, padx=10, fill=tk.X, anchor=tk.E) 
@@ -1037,19 +1031,220 @@ class EmployeeManagementSystem:
         plt.show()
 
 
+    def open_file(self):
+        filename = filedialog.askopenfilename(title="Select a file", filetypes=(("CSV files", "*.csv"), ("All files", "*.*")))
+        if filename:
+            # Load data from the selected file
+            data = pd.read_csv(filename)
+                
+            # Create a pop-up entry box for the target column
+            target_column = simpledialog.askstring("Input", "Enter the target column name:")
+            if target_column is None or target_column == "":
+                tk.messagebox.showerror("Error", "Target column name not provided.")
+                return
+            
+            # Store the data and target column for later use
+            self.current_data = data
+            self.target_column = target_column
 
-    def statistic_of_data(self):
-        messagebox.showinfo("Statistic of Data", "Calculating Statistics")
+            # Create the prediction button
+            prediction_button = tk.Button(self.bottom_frame, text="Predict Attrition", command=lambda: self.predict_attrition(),
+                                        bg="#273746", fg="#ecf0f1", width=17, bd=1, relief=tk.RAISED)
+            prediction_button.pack(side=tk.RIGHT, padx=10, pady=5)  # Adjust the side according to your layout
+
+
+
+    def predict_attrition(self, data=None):
+        if data is None:
+            data = self.current_data
+            
+        if data is None:
+            messagebox.showerror("Error", "No data loaded. Please load data first.")
+            return
+        
+        target_column = self.target_column
+        
+        # Preprocess data
+        preprocessed_data = self.preprocess_data(data)
+
+        # Data preprocessing
+        # Example: Handling missing values, encoding categorical variables, scaling numerical features
+
+        # Splitting data into features and target
+        try:
+            # Train model
+            model = self.train_model(preprocessed_data, target_column)
+            X = self.current_data.drop(target_column, axis=1)
+            y = self.current_data[target_column]
+
+            # Splitting data into train and test sets
+            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+            # Hyperparameter tuning
+            param_grid = {'n_estimators': [50, 100, 200], 'max_depth': [None, 5, 10]}
+            rf = RandomForestClassifier(random_state=42)
+            grid_search = GridSearchCV(rf, param_grid, cv=5, scoring='accuracy')
+            grid_search.fit(X_train, y_train)
+            best_params = grid_search.best_params_
+
+            # Training the model with best parameters
+            best_rf = RandomForestClassifier(**best_params, random_state=42)
+            best_rf.fit(X_train, y_train)
+
+            # Model evaluation
+            y_pred = best_rf.predict(X_test)
+            accuracy = accuracy_score(y_test, y_pred)
+            precision = precision_score(y_test, y_pred)
+            recall = recall_score(y_test, y_pred)
+            f1 = f1_score(y_test, y_pred)
+            cm = confusion_matrix(y_test, y_pred)
+            roc_auc = roc_auc_score(y_test, best_rf.predict_proba(X_test)[:, 1])
+
+            # Visualization
+            # Plot Confusion Matrix
+            plt.figure(figsize=(8, 6))
+            sns.heatmap(cm, annot=True, cmap='Blues', fmt='g')
+            plt.xlabel('Predicted Labels')
+            plt.ylabel('True Labels')
+            plt.title('Confusion Matrix')
+            plt.show()
+
+            # Plot ROC Curve
+            fpr, tpr, _ = roc_curve(y_test, best_rf.predict_proba(X_test)[:, 1])
+            plt.figure(figsize=(8, 6))
+            plt.plot(fpr, tpr, label=f'AUC = {roc_auc:.2f}')
+            plt.plot([0, 1], [0, 1], linestyle='--')
+            plt.xlabel('False Positive Rate')
+            plt.ylabel('True Positive Rate')
+            plt.title('Receiver Operating Characteristic (ROC) Curve')
+            plt.legend()
+            plt.show()
+
+            # Display prediction results
+            y_pred = model.predict(X_test)
+            accuracy = accuracy_score(y_test, y_pred)
+            precision = precision_score(y_test, y_pred)
+            recall = recall_score(y_test, y_pred)
+            f1 = f1_score(y_test, y_pred)
+            self.display_prediction_results(accuracy, precision, recall, f1)
+
+        except KeyError:
+            tk.messagebox.showerror("Error", f"Column '{target_column}' not found in data.")
+
+
+
+    def display_prediction_results(self, accuracy, precision, recall, f1):
+        prediction_window = tk.Toplevel(self.root)
+        prediction_window.title("Attrition Prediction Results")
+
+        # Create a button to trigger prediction
+        prediction_button = tk.Button(self.bottom_frame, text="Predict Attrition", command=self.predict_attrition,
+                                       bg="#273746", fg="#ecf0f1", width=17, bd=1, relief=tk.RAISED)
+        prediction_button.pack(side=tk.RIGHT, padx=10, pady=5)  # Adjust the side according to your layout
+
+        # Add labels for prediction results
+        accuracy_label = tk.Label(prediction_window, text=f"Accuracy: {accuracy:.2f}")
+        accuracy_label.pack()
+
+        precision_label = tk.Label(prediction_window, text=f"Precision: {precision:.2f}")
+        precision_label.pack()
+
+        recall_label = tk.Label(prediction_window, text=f"Recall: {recall:.2f}")
+        recall_label.pack()
+
+        f1_label = tk.Label(prediction_window, text=f"F1 Score: {f1:.2f}")
+        f1_label.pack()
+
+    def preprocess_data(self, filename):
+        # Load your dataset
+        data = pd.read_csv(filename)
+        
+        # Handle categorical variables (example using one-hot encoding)
+        data = pd.get_dummies(data, columns=['categorical_column'])
+        
+        # Handle missing values (example using imputation with mean)
+        data.fillna(data.mean(), inplace=True)
+        
+        # Ensure all columns are numeric
+        data = data.apply(pd.to_numeric, errors='coerce')
+        data.dropna(inplace=True)
+        
+        return data
+
+    def train_model(self, data, target_column):
+        # Split data into features and target
+        X = data.drop(target_column, axis=1)
+        y = data[target_column]
+        
+        # Split data into train and test sets
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        
+        # Train your machine learning model (example using Random Forest)
+        model = RandomForestClassifier()
+        model.fit(X_train, y_train)
+        
+        return model
+    
+
+    
+
 
     def open_file(self, file_type):
-        file_extension = file_type.lower()
-        file_path = filedialog.askopenfilename(title=f"Select {file_type} File", filetypes=[(f"{file_type} files", f"*.{file_extension}")])
-        if file_path:
-            print(f"Opening {file_type} file: {file_path}")
+        if file_type != "MySQL Server":
+            file_extension = file_type.lower()
+            file_path = filedialog.askopenfilename(title=f"Select {file_type} File", filetypes=[(f"{file_type} files", f"*.{file_extension}")])
+            if file_path:
+                print(f"Opening {file_type} file: {file_path}")
+                try:
+                    self.display_data(file_path, file_type)
+                except Exception as e:
+                    messagebox.showerror("Error", f"Error reading {file_type} file: {e}")
+        else:
             try:
-                self.display_data(file_path, file_type)
-            except Exception as e:
-                messagebox.showerror("Error", f"Error reading {file_type} file: {e}")
+                self.mysql_connection_dialog()
+            except:
+                messagebox.showerror("Error", "Error connecting to MySQL Server.")
+    
+    def mysql_connection_dialog(self):
+        # Dialog for MySQL connection details
+        host = simpledialog.askstring("MySQL Connection", "Enter Host:")
+        user = simpledialog.askstring("MySQL Connection", "Enter User:")
+        password = simpledialog.askstring("MySQL Connection", "Enter Password:", show="*")
+        database = simpledialog.askstring("MySQL Connection", "Enter Database:")
+
+        if host and user and password and database:
+            # Attempt to establish a MySQL connection
+            try:
+                self.mysql_conn = pymysql.connect(host=host, user=user, password=password, database=database)
+                self.select_mysql_table()
+            except pymysql.MySQLError as e:
+                messagebox.showerror("MySQL Connection Error", f"Error connecting to MySQL Server: {e}")
+        else:
+            messagebox.showwarning("MySQL Connection", "Connection details are incomplete.")
+
+    def select_mysql_table(self):
+        cursor = self.mysql_conn.cursor()
+        cursor.execute("SHOW TABLES;")
+        tables = [table[0] for table in cursor.fetchall()]
+        
+        # Ask user to select a table
+        table = simpledialog.askstring("Select Table", f"Enter table name from list: {', '.join(tables)}")
+        if table in tables:
+            # Fetching the data from the selected table
+            query = f"SELECT * FROM {table}"
+            cursor.execute(query)
+            data = cursor.fetchall()
+            
+            # Fetching column names
+            columns = [desc[0] for desc in cursor.description]
+            
+            # Converting the data into a Pandas DataFrame
+            df = pd.DataFrame(data, columns=columns)
+            
+            # Displaying the data using the existing display_in_treeview method
+            self.display_in_treeview(df)
+        else:
+            messagebox.showerror("Table Selection", "Invalid table name or table does not exist.")
 
 
     def display_data(self, file_path, file_type):
