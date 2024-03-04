@@ -57,6 +57,10 @@ class EmployeeManagementSystem:
         for operation in data_operations:
             if operation == "DATA INFORMATION":
                 operation_button = tk.Button(self.bottom_frame, text=operation, command=self.show_data_info, bg="#273746", fg="#ecf0f1", width=17, bd=1, relief=tk.RAISED)
+            elif operation == "PREDICTION":
+                # Create the prediction button
+                self.prediction_button = tk.Button(self.bottom_frame, text="PREDICTION", command=self.predict_attrition, bg="#273746", fg="#ecf0f1", width=17, bd=1, relief=tk.RAISED)
+                self.prediction_button.pack(side=tk.LEFT, padx=10, pady=5)
             else:
                 operation_button = tk.Button(self.bottom_frame, text=operation, command=lambda op=operation: self.perform_operation(op),
                                             bg="#273746", fg="#ecf0f1", width=17, bd=1, relief=tk.RAISED)
@@ -1036,7 +1040,7 @@ class EmployeeManagementSystem:
         if filename:
             # Load data from the selected file
             data = pd.read_csv(filename)
-                
+            
             # Create a pop-up entry box for the target column
             target_column = simpledialog.askstring("Input", "Enter the target column name:")
             if target_column is None or target_column == "":
@@ -1047,10 +1051,18 @@ class EmployeeManagementSystem:
             self.current_data = data
             self.target_column = target_column
 
-            # Create the prediction button
-            prediction_button = tk.Button(self.bottom_frame, text="Predict Attrition", command=lambda: self.predict_attrition(),
-                                        bg="#273746", fg="#ecf0f1", width=17, bd=1, relief=tk.RAISED)
-            prediction_button.pack(side=tk.RIGHT, padx=10, pady=5)  # Adjust the side according to your layout
+            # Enable the prediction button
+            self.prediction_button.config(state="normal")
+
+            # Display the data
+            self.display_in_treeview(self.current_data)
+
+            # Update file_path attribute
+            self.file_path = filename
+
+            # Trigger prediction
+            self.predict_attrition()
+
 
 
 
