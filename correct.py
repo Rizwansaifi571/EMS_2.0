@@ -648,7 +648,7 @@ class EmployeeManagementSystem:
                 information_window,
                 columns=("Column", "Data Type", "Unique Values", "Missing Values"),
                 show="headings",
-                selectmode="none"
+                selectmode="browse"
             )
             info_treeview.heading("Column", text="Column")
             info_treeview.heading("Data Type", text="Data Type")
@@ -673,7 +673,7 @@ class EmployeeManagementSystem:
                 information_window,
                 columns=("Info", "Value"),
                 show="headings",
-                selectmode="none"
+                selectmode="browse"
             )
             info_treeview_summary.heading("Info", text="Info")
             info_treeview_summary.heading("Value", text="Value")
