@@ -28,6 +28,8 @@ class EmployeeManagementSystem:
         self.current_data = None
         self.menu_frame=None
 
+
+
         # Header Frame
         self.header_frame = tk.Frame(root, bg="#273746", height=70, bd=1, relief=tk.SOLID)
         self.header_frame.pack(fill=tk.X)
@@ -237,7 +239,7 @@ class EmployeeManagementSystem:
         elif operation == "DATA VISUALIZATION":
             self.data_visualization_window()
         elif operation == "FORECAST":
-            self.statistic_of_data()
+            self.data_forecast_window()
 
     
 
@@ -1027,8 +1029,42 @@ class EmployeeManagementSystem:
 
 
 
-    def data_Forecost_window(self):
-        messagebox.showinfo("data forecast", "Calculating prediction")
+    def data_forecast_window(self):
+        # Create a new Toplevel window
+        forecast_window = tk.Toplevel(self.root)
+        forecast_window.title("Data Forecast")
+
+        # Apply the same theme as the parent window
+        if self.theme == "light":
+            forecast_window.configure(bg="#ecf0f1")
+        else:
+            forecast_window.configure(bg="#2c3e50")
+
+        forecast_window.state("zoomed")  # Maximize the window
+
+        # Header Frame of data_forecast_window
+        header_frame_forecast = tk.Frame(forecast_window, bg="#273746", height=70, bd=1, relief=tk.SOLID)
+        header_frame_forecast.pack(fill=tk.X)
+
+        header_label_forecast = tk.Label(header_frame_forecast, text="Data Forecasting", font=("Arial", 20, "bold"), bg="#273746", fg="white")
+        header_label_forecast.pack(pady=15)
+
+        # Main Part Frame of data_forecast_window
+        main_frame_forecast = tk.Frame(forecast_window, bg="#ecf0f1", bd=1, relief=tk.SOLID)
+        main_frame_forecast.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        # Add your forecasting widgets and layout here
+
+        # Footer Frame
+        footer_frame_forecast = tk.Frame(forecast_window, bg="#273746", height=30, bd=1, relief=tk.SOLID)
+        footer_frame_forecast.pack(fill=tk.X, side=tk.BOTTOM)
+
+        footer_label_forecast = tk.Label(footer_frame_forecast, text="© 2024 EMS - A Business Intelligence Tool", font=("Arial", 8), bg="#273746", fg="white")
+        footer_label_forecast.pack(pady=5)
+
+        # Ensure the window remains open
+        forecast_window.mainloop()
+
 
     def open_file(self, file_type):
         if file_type != "MySQL Server":
