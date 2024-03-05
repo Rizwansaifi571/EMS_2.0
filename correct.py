@@ -13,6 +13,8 @@ import textwrap
 import numpy as np
 import pymysql
 from tkinter import Scrollbar
+from sklearn.linear_model import LinearRegression
+
 
 class EmployeeManagementSystem:
     def __init__(self, root):
@@ -1111,6 +1113,10 @@ class EmployeeManagementSystem:
         button1 = tk.Button(machine_learning_buttons, text="Function 1", command=self.function1, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
         button1.pack(pady=5)
 
+        # Add button for linear regression
+        linear_regression_button = tk.Button(menu_frame_forecast, text="Apply Linear Regression", command=self.apply_linear_regression, bg="#273746", fg="#ecf0f1", width=25, height=2)
+        linear_regression_button.pack(pady=5)
+
         button2 = tk.Button(machine_learning_buttons, text="Standardization", command=lambda: self.scale_data(data, columns=self.treeview["columns"], method='standardization'), bg=button_bg, fg=button_fg, width=button_width, height=button_height)
         button2.pack(pady=5)
 
@@ -1133,16 +1139,47 @@ class EmployeeManagementSystem:
         # Implement functionality for Function 1 here
         pass
 
-    def scale_data(self, data, columns, method='standardization'):
-        # Convert columns tuple to a list
-        columns_list = list(columns)
-        
-        # Remove 'Row No.' column if present
-        if 'Row No.' in columns_list:
-            columns_list.remove('Row No.')
+    def apply_linear_regression(self):
+        if self.current_data is None:
+            messagebox.showerror("Error", "No data available for linear regression.")
+            return
 
-        # Convert columns list back to a tuple
-        columns = tuple(columns_list)
+        # Prompt user to select independent and dependent variables
+        independent_variable = simpledialog.askstring("Select Variable", "Enter name of independent variable:")
+        dependent_variable = simpledialog.askstring("Select Variable", "Enter name of dependent variable:")
+
+        if independent_variable is None or dependent_variable is None:
+            messagebox.showerror("Error", "Please specify both independent and dependent variables.")
+            return
+
+        # Check if variables exist in the current data
+        if independent_variable not in self.current_data.columns or dependent_variable not in self.current_data.columns:
+            messagebox.showerror("Error", "Selected variables not found in data.")
+            return
+
+        # Extract selected variables from data
+        X = self.current_data[[independent_variable]]
+        y = self.current_data[dependent_variable]
+
+        # Perform linear regression
+        model = LinearRegression()
+        model.fit(X, y)
+
+        # Display regression coefficients
+        messagebox.showinfo("Linear Regression Results", f"Regression Coefficients:\nIntercept: {model.intercept_}\nSlope: {model.coef_[0]}")
+
+    def scale_data(self, data, columns, method='standardization'):
+        # Extract the column names from the Treeview widget
+        treeview_columns = self.treeview["columns"]
+
+        # Print out the column names from the Treeview widget and columns in the DataFrame
+        print("Columns from Treeview:", treeview_columns)
+        print("Columns in DataFrame:", data.columns)
+
+        # Check if the columns from the Treeview widget match the columns in the DataFrame
+        if set(treeview_columns) != set(data.columns):
+            print("Column names from Treeview do not match columns in DataFrame")
+            return
 
         # Extract the selected columns from the data
         selected_data = data[columns]
@@ -1159,6 +1196,7 @@ class EmployeeManagementSystem:
 
         # Display the updated data in the Treeview widget
         self.display_in_treeview(data)
+
 
 
 
