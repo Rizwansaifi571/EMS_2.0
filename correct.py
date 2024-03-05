@@ -1060,6 +1060,37 @@ class EmployeeManagementSystem:
         menu_frame_forecast = tk.Frame(main_frame_forecast, bg="darkgrey", width=250, bd=1, relief=tk.SOLID)
         menu_frame_forecast.pack(fill=tk.Y, side=tk.LEFT)
 
+        # Treeview widget to display data
+        treeview = ttk.Treeview(main_frame_forecast, show="headings", style="Treeview")
+        treeview["columns"] = tuple(data.columns)
+
+        # Configure styles for Light and Dark themes
+        treeview_style = ttk.Style()
+        treeview_style.configure("Treeview", font=("Arial", 10), background="#ecf0f1", fieldbackground="#ecf0f1", foreground="#17202a")
+        treeview_style.configure("Light.TFrame", background="#ecf0f1")
+        treeview_style.configure("Dark.TFrame", background="#2c3e50")
+
+        # Add columns to the Treeview
+        for col in data.columns:
+            treeview.heading(col, text=col)
+            treeview.column(col, anchor="center")
+
+        treeview.pack(expand=True, fill=tk.BOTH)
+
+        # Insert data rows
+        for index, row in data.iterrows():
+            treeview.insert("", tk.END, values=tuple(row))
+
+        # Scrollbars for Treeview
+        y_scrollbar = ttk.Scrollbar(main_frame_forecast, orient="vertical", command=treeview.yview)
+        y_scrollbar.pack(side="right", fill="y")
+        treeview.configure(yscrollcommand=y_scrollbar.set)
+
+        x_scrollbar = ttk.Scrollbar(main_frame_forecast, orient="horizontal", command=treeview.xview)
+        x_scrollbar.pack(side="bottom", fill="x")
+        treeview.configure(xscrollcommand=x_scrollbar.set)
+
+
         # Heading for Functions
         functions_heading = tk.Label(menu_frame_forecast, text="Functions", font=("Arial", 16, "bold"), bg="darkgrey", fg="white")
         functions_heading.pack(pady=10)
@@ -1080,10 +1111,10 @@ class EmployeeManagementSystem:
         button1 = tk.Button(machine_learning_buttons, text="Function 1", command=self.function1, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
         button1.pack(pady=5)
 
-        button2 = tk.Button(machine_learning_buttons, text="Standardization", command=lambda: self.scale_data(data, method='standardization'), bg=button_bg, fg=button_fg, width=button_width, height=button_height)
+        button2 = tk.Button(machine_learning_buttons, text="Standardization", command=lambda: self.scale_data(data, columns=self.treeview["columns"], method='standardization'), bg=button_bg, fg=button_fg, width=button_width, height=button_height)
         button2.pack(pady=5)
 
-        button3 = tk.Button(machine_learning_buttons, text="Min-Max Scaling", command=lambda: self.scale_data(data, method='min-max'), bg=button_bg, fg=button_fg, width=button_width, height=button_height)
+        button3 = tk.Button(machine_learning_buttons, text="Min-Max Scaling", command=lambda: self.scale_data(data, columns=self.treeview["columns"], method='min-max'), bg=button_bg, fg=button_fg, width=button_width, height=button_height)
         button3.pack(pady=5)
 
         # Footer Frame
@@ -1102,16 +1133,35 @@ class EmployeeManagementSystem:
         # Implement functionality for Function 1 here
         pass
 
-    def scale_data(self, data, method='standardization'):
+    def scale_data(self, data, columns, method='standardization'):
+        # Convert columns tuple to a list
+        columns_list = list(columns)
+        
+        # Remove 'Row No.' column if present
+        if 'Row No.' in columns_list:
+            columns_list.remove('Row No.')
+
+        # Convert columns list back to a tuple
+        columns = tuple(columns_list)
+
+        # Extract the selected columns from the data
+        selected_data = data[columns]
+
         if method == 'standardization':
             # Perform standardization
-            scaled_data = (data - data.mean()) / data.std()
+            scaled_data = (selected_data - selected_data.mean()) / selected_data.std()
         elif method == 'min-max':
             # Perform min-max scaling
-            scaled_data = (data - data.min()) / (data.max() - data.min())
+            scaled_data = (selected_data - selected_data.min()) / (selected_data.max() - selected_data.min())
 
-        # Display the scaled data
-        self.display_in_treeview(scaled_data)
+        # Update the selected columns in the original data with the scaled values
+        data[columns] = scaled_data
+
+        # Display the updated data in the Treeview widget
+        self.display_in_treeview(data)
+
+
+
 
 
 
