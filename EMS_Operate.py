@@ -1139,15 +1139,36 @@ class EmployeeManagementSystem:
         # Implement functionality for Function 1 here
         pass
 
-    def linear_regression(self, data):
+    def apply_linear_regression(self):
+        # Check if data is available
+        if self.current_data is None:
+            messagebox.showerror("Error", "No data available for linear regression.")
+            return
+        
+        # Prompt user to select independent and dependent variables
+        independent_variable = simpledialog.askstring("Select Variable", "Enter name of independent variable:")
+        if independent_variable is None:
+            messagebox.showerror("Error", "Please specify the independent variable.")
+            return
+
+        # Get dependent variable from user
+        dependent_variable = self.get_dependent_variable(self.current_data)
+        if dependent_variable is None:
+            messagebox.showerror("Error", "Please specify the dependent variable.")
+            return
+
         # Perform linear regression
-        x = data['independent_variable']
-        y = data['dependent_variable']
-        model = LinearRegression().fit(x.values.reshape(-1, 1), y)
+        X = self.current_data[[independent_variable]]
+        y = self.current_data[dependent_variable]
+        model = LinearRegression()
+        model.fit(X, y)
+
+        # Display regression coefficients
         intercept = model.intercept_
         slope = model.coef_[0]
-        
-        # Create a new popup window
+        messagebox.showinfo("Linear Regression Results", f"Regression Coefficients:\nIntercept: {intercept}\nSlope: {slope}")
+
+        # Create a new popup window for linear regression results
         linear_regression_window = tk.Toplevel(self.root)
         linear_regression_window.title("Linear Regression Results")
 
@@ -1159,9 +1180,21 @@ class EmployeeManagementSystem:
         ok_button = tk.Button(linear_regression_window, text="OK", command=linear_regression_window.destroy)
         ok_button.pack(pady=5)
 
-        plot_button = tk.Button(linear_regression_window, text="Plot", command=lambda: self.plot_linear_regression(x, y, intercept, slope))
+        plot_button = tk.Button(linear_regression_window, text="Plot", command=lambda: self.plot_linear_regression(X, y, intercept, slope))
         plot_button.pack(pady=5)
 
+    def get_dependent_variable(self, data):
+        # Prompt user to select dependent variable
+        dependent_variable = simpledialog.askstring("Select Variable", "Enter name of dependent variable:")
+        if dependent_variable is None:
+            return None
+
+        # Check if dependent variable exists in the DataFrame
+        if dependent_variable not in data.columns:
+            messagebox.showerror("Error", "Selected dependent variable not found in data.")
+            return None
+
+        return dependent_variable    
 
     def plot_linear_regression(self, x, y, intercept, slope):
         # Create a new popup window for plot
@@ -1192,6 +1225,7 @@ class EmployeeManagementSystem:
 
         plot_button = tk.Button(plot_window, text="Plot", command=plot)
         plot_button.pack(pady=5)
+
 
     def scale_data(self, data, columns, method='standardization'):
         # Extract the column names from the Treeview widget
