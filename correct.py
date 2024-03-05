@@ -48,7 +48,7 @@ class EmployeeManagementSystem:
         self.bottom_frame.pack(fill=tk.X)
 
         # Buttons for Data Operations
-        data_operations = ["DATA CLEANING", "DATA INFORMATION", "DATA VISUALIZATION", "STATISTIC OF DATA"]
+        data_operations = ["DATA CLEANING", "DATA INFORMATION", "DATA VISUALIZATION", "FORECAST"]
         for operation in data_operations:
             if operation == "DATA INFORMATION":
                 operation_button = tk.Button(self.bottom_frame, text=operation, command=self.show_data_info, bg="#273746", fg="#ecf0f1", width=17, bd=1, relief=tk.RAISED)
@@ -236,7 +236,7 @@ class EmployeeManagementSystem:
             self.data_information()
         elif operation == "DATA VISUALIZATION":
             self.data_visualization_window()
-        elif operation == "STATISTIC OF DATA":
+        elif operation == "FORECAST":
             self.statistic_of_data()
 
     
@@ -1027,8 +1027,8 @@ class EmployeeManagementSystem:
 
 
 
-    def statistic_of_data(self):
-        messagebox.showinfo("Statistic of Data", "Calculating Statistics")
+    def data_Forecost_window(self):
+        messagebox.showinfo("data forecast", "Calculating prediction")
 
     def open_file(self, file_type):
         if file_type != "MySQL Server":
