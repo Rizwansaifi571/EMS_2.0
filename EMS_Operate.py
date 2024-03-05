@@ -13,6 +13,8 @@ import textwrap
 import numpy as np
 import pymysql
 from tkinter import Scrollbar
+from sklearn.linear_model import LinearRegression
+
 
 class EmployeeManagementSystem:
     def __init__(self, root):
@@ -1111,6 +1113,10 @@ class EmployeeManagementSystem:
         button1 = tk.Button(machine_learning_buttons, text="Function 1", command=self.function1, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
         button1.pack(pady=5)
 
+        # Add button for linear regression
+        linear_regression_button = tk.Button(menu_frame_forecast, text="Apply Linear Regression", command=self.apply_linear_regression, bg="#273746", fg="#ecf0f1", width=25, height=2)
+        linear_regression_button.pack(pady=5)
+
         button2 = tk.Button(machine_learning_buttons, text="Standardization", command=lambda: self.scale_data(data, columns=self.treeview["columns"], method='standardization'), bg=button_bg, fg=button_fg, width=button_width, height=button_height)
         button2.pack(pady=5)
 
@@ -1133,16 +1139,72 @@ class EmployeeManagementSystem:
         # Implement functionality for Function 1 here
         pass
 
-    def scale_data(self, data, columns, method='standardization'):
-        # Convert columns tuple to a list
-        columns_list = list(columns)
+    def linear_regression(self, data):
+        # Perform linear regression
+        x = data['independent_variable']
+        y = data['dependent_variable']
+        model = LinearRegression().fit(x.values.reshape(-1, 1), y)
+        intercept = model.intercept_
+        slope = model.coef_[0]
         
-        # Remove 'Row No.' column if present
-        if 'Row No.' in columns_list:
-            columns_list.remove('Row No.')
+        # Create a new popup window
+        linear_regression_window = tk.Toplevel(self.root)
+        linear_regression_window.title("Linear Regression Results")
 
-        # Convert columns list back to a tuple
-        columns = tuple(columns_list)
+        # Add labels for intercept and slope
+        tk.Label(linear_regression_window, text=f"Intercept: {intercept}", font=("Arial", 12)).pack()
+        tk.Label(linear_regression_window, text=f"Slope: {slope}", font=("Arial", 12)).pack()
+
+        # Add buttons for 'OK' and 'Plot'
+        ok_button = tk.Button(linear_regression_window, text="OK", command=linear_regression_window.destroy)
+        ok_button.pack(pady=5)
+
+        plot_button = tk.Button(linear_regression_window, text="Plot", command=lambda: self.plot_linear_regression(x, y, intercept, slope))
+        plot_button.pack(pady=5)
+
+
+    def plot_linear_regression(self, x, y, intercept, slope):
+        # Create a new popup window for plot
+        plot_window = tk.Toplevel(self.root)
+        plot_window.title("Linear Regression Plot")
+
+        # Add labels and entry fields for range of independent variable
+        tk.Label(plot_window, text="Range of Independent Variable", font=("Arial", 12)).pack()
+        min_label = tk.Label(plot_window, text="Min:", font=("Arial", 10))
+        min_label.pack()
+        min_entry = tk.Entry(plot_window)
+        min_entry.pack()
+        max_label = tk.Label(plot_window, text="Max:", font=("Arial", 10))
+        max_label.pack()
+        max_entry = tk.Entry(plot_window)
+        max_entry.pack()
+
+        # Plot the linear regression line
+        def plot():
+            min_val = float(min_entry.get())
+            max_val = float(max_entry.get())
+            plt.scatter(x, y, color='blue')
+            plt.plot([min_val, max_val], [slope * min_val + intercept, slope * max_val + intercept], color='red')
+            plt.xlabel('Independent Variable')
+            plt.ylabel('Dependent Variable')
+            plt.title('Linear Regression Plot')
+            plt.show()
+
+        plot_button = tk.Button(plot_window, text="Plot", command=plot)
+        plot_button.pack(pady=5)
+
+    def scale_data(self, data, columns, method='standardization'):
+        # Extract the column names from the Treeview widget
+        treeview_columns = self.treeview["columns"]
+
+        # Print out the column names from the Treeview widget and columns in the DataFrame
+        print("Columns from Treeview:", treeview_columns)
+        print("Columns in DataFrame:", data.columns)
+
+        # Check if the columns from the Treeview widget match the columns in the DataFrame
+        if set(treeview_columns) != set(data.columns):
+            print("Column names from Treeview do not match columns in DataFrame")
+            return
 
         # Extract the selected columns from the data
         selected_data = data[columns]
@@ -1159,6 +1221,7 @@ class EmployeeManagementSystem:
 
         # Display the updated data in the Treeview widget
         self.display_in_treeview(data)
+
 
 
 
