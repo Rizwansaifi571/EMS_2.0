@@ -1,23 +1,18 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, simpledialog
 from tkinter.simpledialog import askstring
-import pandas as pd
-from tkinter import ttk
-import openpyxl
 from PIL import Image, ImageTk
+import pandas as pd
+import openpyxl
 from docx import Document
+from scipy.stats import mode as scipy_mode
+from pandasgui import show
 import matplotlib.pyplot as plt
 import seaborn as sns
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 import textwrap
+import numpy as np
 import pymysql
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
 from tkinter import Scrollbar
-from pandasgui import show
-from scipy.stats import mode as scipy_mode
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_auc_score, roc_curve
 
 class EmployeeManagementSystem:
     def __init__(self, root):
@@ -31,15 +26,7 @@ class EmployeeManagementSystem:
         # Add file_path attribute
         self.file_path = None
         self.current_data = None
-        self.target_column = None  # Initialize target_column attribute
-        self.model = None
         self.menu_frame=None
-
-        self.open_button = tk.Button(self.root, text="Open File", command=self.open_file)
-        self.open_button.pack()
-        
-        self.prediction_button = tk.Button(self.root, text="Predict Attrition", command=self.predict_attrition, state="disabled")
-        self.prediction_button.pack()
 
         # Header Frame
         self.header_frame = tk.Frame(root, bg="#273746", height=70, bd=1, relief=tk.SOLID)
@@ -65,10 +52,6 @@ class EmployeeManagementSystem:
         for operation in data_operations:
             if operation == "DATA INFORMATION":
                 operation_button = tk.Button(self.bottom_frame, text=operation, command=self.show_data_info, bg="#273746", fg="#ecf0f1", width=17, bd=1, relief=tk.RAISED)
-            elif operation == "PREDICTION":
-                # Create the prediction button
-                self.prediction_button = tk.Button(self.bottom_frame, text="PREDICTION", command=self.predict_attrition, bg="#273746", fg="#ecf0f1", width=17, bd=1, relief=tk.RAISED)
-                self.prediction_button.pack(side=tk.LEFT, padx=10, pady=5)
             else:
                 operation_button = tk.Button(self.bottom_frame, text=operation, command=lambda op=operation: self.perform_operation(op),
                                             bg="#273746", fg="#ecf0f1", width=17, bd=1, relief=tk.RAISED)
@@ -254,7 +237,7 @@ class EmployeeManagementSystem:
         elif operation == "DATA VISUALIZATION":
             self.data_visualization_window()
         elif operation == "FORECAST":
-            self.predict_attrition()
+            self.statistic_of_data()
 
     
 
@@ -1043,179 +1026,9 @@ class EmployeeManagementSystem:
         plt.show()
 
 
-    def open_file(self):
-        filename = filedialog.askopenfilename(title="Select a file", filetypes=(("CSV files", "*.csv"), ("All files", "*.*")))
-        if filename:
-            # Load data from the selected file
-            data = pd.read_csv(filename)
 
-            # Create a pop-up entry box for the target column
-            target_column = simpledialog.askstring("Input", "Enter the target column name:")
-            if target_column is None or target_column == "":
-                tk.messagebox.showerror("Error", "Target column name not provided.")
-                return
-
-            # Store the data and target column for later use
-            self.current_data = data
-            self.target_column = target_column
-
-            # Enable the prediction button
-            self.prediction_button.config(state="normal")
-
-
-
-
-    def predict_attrition(self, data=None):
-        if data is None:
-            data = self.current_data
-
-        # Check if target column is specified
-        if self.target_column is None:
-            # If not specified, prompt the user to enter the target column
-            target_column = simpledialog.askstring("Input", "Enter the target column name:")
-            if target_column is None or target_column == "":
-                tk.messagebox.showerror("Error", "Target column name not provided.")
-                return
-            else:
-                self.target_column = target_column
-
-        # Continue with prediction
-        try:
-            # Preprocess data
-            preprocessed_data = self.preprocess_data(data)
-
-            # Display input fields for independent variable values
-            independent_variables = simpledialog.askstring("Input", "Enter independent variable values separated by commas:")
-            if independent_variables is None or independent_variables == "":
-                tk.messagebox.showerror("Error", "Independent variable values not provided.")
-                return
-
-            # Split the user input to get individual values
-            independent_values = [float(val.strip()) for val in independent_variables.split(',')]
-
-            # Perform prediction for the provided independent variable values
-            predicted_value = self.predict_value(preprocessed_data, independent_values)
-
-            # Display the predicted value
-            tk.messagebox.showinfo("Prediction", f"Predicted value of {self.target_column}: {predicted_value}")
-
-            # Visualize the prediction graph
-            self.visualize_prediction(preprocessed_data, independent_values)
-
-        except KeyError:
-            tk.messagebox.showerror("Error", f"Column '{self.target_column}' not found in data.")
-
-    def visualize_prediction(self, data, independent_values):
-        try:
-            # Ensure that the number of independent variable values matches the number of columns
-            if len(independent_values) != data.shape[1] - 1:
-                raise ValueError("Number of independent variable values does not match the number of columns.")
-            
-            # Predict the value using the trained model
-            independent_data = pd.DataFrame([independent_values], columns=data.columns[:-1])
-            predicted_value = self.model.predict(independent_data)[0]
-
-            # Plot the prediction graph
-            plt.figure(figsize=(8, 6))
-            plt.scatter(data[self.target_column], data[self.target_column], color='blue', label='Actual')
-            plt.scatter(predicted_value, predicted_value, color='red', label='Predicted', marker='x')
-            plt.xlabel('Actual Values')
-            plt.ylabel('Predicted Values')
-            plt.title('Prediction Graph')
-            plt.legend()
-            plt.show()
-
-        except Exception as e:
-            raise e
-        
-    def display_prediction_results(self, data, independent_values):
-        try:
-            # Train model
-            self.model = self.train_model(data, self.target_column)
-
-            # Splitting data into features and target
-            X = data.drop(self.target_column, axis=1)
-            y = data[self.target_column]
-
-            # Splitting data into train and test sets
-            X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-            # Model evaluation
-            y_pred = self.model.predict(X_test)
-            accuracy = accuracy_score(y_test, y_pred)
-            precision = precision_score(y_test, y_pred)
-            recall = recall_score(y_test, y_pred)
-            f1 = f1_score(y_test, y_pred)
-            cm = confusion_matrix(y_test, y_pred)
-            roc_auc = roc_auc_score(y_test, self.model.predict_proba(X_test)[:, 1])
-
-            # Visualization
-            # Plot Confusion Matrix
-            plt.figure(figsize=(8, 6))
-            sns.heatmap(cm, annot=True, cmap='Blues', fmt='g')
-            plt.xlabel('Predicted Labels')
-            plt.ylabel('True Labels')
-            plt.title('Confusion Matrix')
-            plt.show()
-
-            # Plot ROC Curve
-            fpr, tpr, _ = roc_curve(y_test, self.model.predict_proba(X_test)[:, 1])
-            plt.figure(figsize=(8, 6))
-            plt.plot(fpr, tpr, label=f'AUC = {roc_auc:.2f}')
-            plt.plot([0, 1], [0, 1], linestyle='--')
-            plt.xlabel('False Positive Rate')
-            plt.ylabel('True Positive Rate')
-            plt.title('Receiver Operating Characteristic (ROC) Curve')
-            plt.legend()
-            plt.show()
-
-            # Display prediction results
-            self.display_prediction_results(accuracy, precision, recall, f1)
-
-        except Exception as e:
-            raise e
-
-    def preprocess_data(self, filename):
-        # Load your dataset
-        data = pd.read_csv(filename)
-        
-        # Handle categorical variables (example using one-hot encoding)
-        data = pd.get_dummies(data, columns=['categorical_column'])
-        
-        # Handle missing values (example using imputation with mean)
-        data.fillna(data.mean(), inplace=True)
-        
-        # Ensure all columns are numeric
-        data = data.apply(pd.to_numeric, errors='coerce')
-        data.dropna(inplace=True)
-        
-        return data
-
-    def train_model(self, data, target_column):
-        # Split data into features and target
-        X = data.drop(target_column, axis=1)
-        y = data[target_column]
-        
-        # Split data into train and test sets
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-        
-        # Train your machine learning model (example using Random Forest)
-        model = RandomForestClassifier()
-        model.fit(X_train, y_train)
-        
-        return model
-    
-    def predict_value(self, data, independent_values):
-        # Perform prediction for the provided independent variable values
-        # Dummy implementation for illustration purposes
-        # This function should return the predicted value
-        independent_data = pd.DataFrame([independent_values], columns=data.columns[:-1])
-        predicted_value = self.model.predict(independent_data)[0]
-        return predicted_value
-
-    def run(self):
-        self.root.mainloop()
-
+    def data_Forecost_window(self):
+        messagebox.showinfo("data forecast", "Calculating prediction")
 
     def open_file(self, file_type):
         if file_type != "MySQL Server":
