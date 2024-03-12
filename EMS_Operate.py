@@ -1065,6 +1065,7 @@ class EmployeeManagementSystem:
         # Treeview widget to display data
         treeview = ttk.Treeview(main_frame_forecast, show="headings", style="Treeview")
         treeview["columns"] = tuple(data.columns)
+        
 
         # Configure styles for Light and Dark themes
         treeview_style = ttk.Style()
