@@ -1124,16 +1124,16 @@ class EmployeeManagementSystem:
         linear_regression_button.pack(pady=5)
 
         # Add button for Multiple regression
-        linear_regression_button = tk.Button(menu_frame_forecast, text="Apply Multiple Regression", command=self.apply_multiple_regression, bg="#273746", fg="#ecf0f1", width=25, height=2)
-        linear_regression_button.pack(pady=5)
+        Multiple_regression_button = tk.Button(menu_frame_forecast, text="Apply Multiple Regression", command=self.apply_multiple_regression, bg="#273746", fg="#ecf0f1", width=25, height=2)
+        Multiple_regression_button.pack(pady=5)
 
         # Add button for Polynomial regression
-        linear_regression_button = tk.Button(menu_frame_forecast, text="Apply Polynomial Regression", command=self.apply_polynomial_regression, bg="#273746", fg="#ecf0f1", width=25, height=2)
-        linear_regression_button.pack(pady=5)
+        Polynomial_regression_button = tk.Button(menu_frame_forecast, text="Apply Polynomial Regression", command=self.apply_polynomial_regression, bg="#273746", fg="#ecf0f1", width=25, height=2)
+        Polynomial_regression_button.pack(pady=5)
 
         # Add button for Scalling
-        linear_regression_button = tk.Button(menu_frame_forecast, text="Apply Scale", command=self.scale_data(data), bg="#273746", fg="#ecf0f1", width=25, height=2)
-        linear_regression_button.pack(pady=5)
+        Scalling_button = tk.Button(menu_frame_forecast, text="Apply Scale", command=lambda: self.update_forecast_window(data), bg="#273746", fg="#ecf0f1", width=25, height=2)
+        Scalling_button.pack(pady=5)
 
         # Footer Frame
         footer_frame_forecast = tk.Frame(forecast_window, bg="#273746", height=30, bd=1, relief=tk.SOLID)
@@ -1336,6 +1336,11 @@ class EmployeeManagementSystem:
 
         # Optionally, you can return the model if you want to use it for predictions later
         return model
+
+
+    def update_forecast_window(self, data):
+        scaled_data = self.scale_data(data)
+        self.data_forecast_window(scaled_data)
 
 
     def scale_data(self, data):
