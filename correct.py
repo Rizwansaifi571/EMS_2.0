@@ -1187,12 +1187,15 @@ class EmployeeManagementSystem:
         r_squared = r2_score(y, y_pred)
         messagebox.showinfo("Linear Regression Results", f"Intercept: {intercept}\nCoefficients: {coefficients}\nR-squared: {r_squared}")
 
-        # Plot actual vs. predicted values
-        plt.scatter(y, y_pred)
-        plt.plot([y.min(), y.max()], [y.min(), y.max()], 'k--', lw=2)
+        #Plot actual vs. predicted values
+        plt.figure(figsize=(8, 6))
+        plt.scatter(y, y_pred, color='blue', label='Actual vs. Predicted')
+        plt.plot([y.min(), y.max()], [y.min(), y.max()], 'k--', lw=2, label='Perfect Prediction')
         plt.xlabel('Actual')
         plt.ylabel('Predicted')
         plt.title('Actual vs. Predicted Values')
+        plt.legend()
+        plt.grid(True)
         plt.show()
 
         # Optionally, you can return the model if you want to use it for predictions later
