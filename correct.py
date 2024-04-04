@@ -14,6 +14,8 @@ import numpy as np
 import pymysql
 from tkinter import Scrollbar
 from sklearn.linear_model import LinearRegression
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import r2_score
 # from sklearn.preprocessing import MinMaxScaler
 
 
@@ -1145,87 +1147,56 @@ class EmployeeManagementSystem:
         if self.current_data is None:
             messagebox.showerror("Error", "No data available for linear regression.")
             return
-        
-        # Prompt user to select independent and dependent variables
-        independent_variable = simpledialog.askstring("Select Variable", "Enter name of independent variable:")
-        if independent_variable is None:
-            messagebox.showerror("Error", "Please specify the independent variable.")
+
+        # Get the target variable from the user
+        target_variable = simpledialog.askstring("Select Variable", "Enter name of the target variable:")
+        if target_variable is None:
+            messagebox.showerror("Error", "Please specify the target variable.")
             return
 
-        # Get dependent variable from user
-        dependent_variable = self.get_dependent_variable(self.current_data)
-        if dependent_variable is None:
-            messagebox.showerror("Error", "Please specify the dependent variable.")
+        # Check if the target variable exists in the DataFrame
+        if target_variable not in self.current_data.columns:
+            messagebox.showerror("Error", "Selected target variable not found in data.")
             return
+
+        # Get the independent variables (all columns except the target variable)
+        independent_variables = [col for col in self.current_data.columns if col != target_variable]
+
+        # Convert categorical columns to numerical values
+        data = self.current_data.copy()  # Create a copy to avoid modifying the original data
+        categorical_cols = data.select_dtypes(include=['object']).columns
+        label_encoders = {}
+        for col in categorical_cols:
+            label_encoders[col] = LabelEncoder()
+            data[col] = label_encoders[col].fit_transform(data[col])
+
+        # Prepare the independent and dependent variables
+        X = data[independent_variables]
+        y = data[target_variable]
 
         # Perform linear regression
-        X = self.current_data[[independent_variable]]
-        y = self.current_data[dependent_variable]
         model = LinearRegression()
         model.fit(X, y)
 
-        # Display regression coefficients
+        # Make predictions
+        y_pred = model.predict(X)
+
+        # Display regression coefficients and R-squared score
         intercept = model.intercept_
-        slope = model.coef_[0]
-        messagebox.showinfo("Linear Regression Results", f"Regression Coefficients:\nIntercept: {intercept}\nSlope: {slope}")
+        coefficients = model.coef_
+        r_squared = r2_score(y, y_pred)
+        messagebox.showinfo("Linear Regression Results", f"Intercept: {intercept}\nCoefficients: {coefficients}\nR-squared: {r_squared}")
 
-        # Create a new popup window for linear regression results
-        linear_regression_window = tk.Toplevel(self.root)
-        linear_regression_window.title("Linear Regression Results")
+        # Plot actual vs. predicted values
+        plt.scatter(y, y_pred)
+        plt.plot([y.min(), y.max()], [y.min(), y.max()], 'k--', lw=2)
+        plt.xlabel('Actual')
+        plt.ylabel('Predicted')
+        plt.title('Actual vs. Predicted Values')
+        plt.show()
 
-        # Add labels for intercept and slope
-        tk.Label(linear_regression_window, text=f"Intercept: {intercept}", font=("Arial", 12)).pack()
-        tk.Label(linear_regression_window, text=f"Slope: {slope}", font=("Arial", 12)).pack()
-
-        # Add buttons for 'OK' and 'Plot'
-        ok_button = tk.Button(linear_regression_window, text="OK", command=linear_regression_window.destroy)
-        ok_button.pack(pady=5)
-
-        plot_button = tk.Button(linear_regression_window, text="Plot", command=lambda: self.plot_linear_regression(X, y, intercept, slope))
-        plot_button.pack(pady=5)
-
-    def get_dependent_variable(self, data):
-        # Prompt user to select dependent variable
-        dependent_variable = simpledialog.askstring("Select Variable", "Enter name of dependent variable:")
-        if dependent_variable is None:
-            return None
-
-        # Check if dependent variable exists in the DataFrame
-        if dependent_variable not in data.columns:
-            messagebox.showerror("Error", "Selected dependent variable not found in data.")
-            return None
-
-        return dependent_variable    
-
-    def plot_linear_regression(self, x, y, intercept, slope):
-        # Create a new popup window for plot
-        plot_window = tk.Toplevel(self.root)
-        plot_window.title("Linear Regression Plot")
-
-        # Add labels and entry fields for range of independent variable
-        tk.Label(plot_window, text="Range of Independent Variable", font=("Arial", 12)).pack()
-        min_label = tk.Label(plot_window, text="Min:", font=("Arial", 10))
-        min_label.pack()
-        min_entry = tk.Entry(plot_window)
-        min_entry.pack()
-        max_label = tk.Label(plot_window, text="Max:", font=("Arial", 10))
-        max_label.pack()
-        max_entry = tk.Entry(plot_window)
-        max_entry.pack()
-
-        # Plot the linear regression line
-        def plot():
-            min_val = float(min_entry.get())
-            max_val = float(max_entry.get())
-            plt.scatter(x, y, color='blue')
-            plt.plot([min_val, max_val], [slope * min_val + intercept, slope * max_val + intercept], color='red')
-            plt.xlabel('Independent Variable')
-            plt.ylabel('Dependent Variable')
-            plt.title('Linear Regression Plot')
-            plt.show()
-
-        plot_button = tk.Button(plot_window, text="Plot", command=plot)
-        plot_button.pack(pady=5)
+        # Optionally, you can return the model if you want to use it for predictions later
+        return model
 
 
     def scale_data(self, data, columns, method='standardization'):
