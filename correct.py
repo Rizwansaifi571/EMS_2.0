@@ -1115,10 +1115,6 @@ class EmployeeManagementSystem:
         machine_learning_buttons = tk.Frame(menu_frame_forecast, bg="#ecf0f1")
         machine_learning_buttons.pack(fill=tk.X, padx=10, pady=10)
 
-        # Create buttons for machine learning functions
-        button1 = tk.Button(machine_learning_buttons, text="Function 1", command=self.function1, bg=button_bg, fg=button_fg, width=button_width, height=button_height)
-        button1.pack(pady=5)
-
         # Add button for linear regression
         linear_regression_button = tk.Button(menu_frame_forecast, text="Apply Linear Regression", command=self.apply_linear_regression, bg="#273746", fg="#ecf0f1", width=25, height=2)
         linear_regression_button.pack(pady=5)
@@ -1145,11 +1141,6 @@ class EmployeeManagementSystem:
 
         # Ensure the window remains open
         forecast_window.mainloop()
-
-
-    def function1(self):
-        # Implement functionality for Function 1 here
-        pass
 
     def apply_linear_regression(self):
         # Check if data is available
@@ -1211,7 +1202,7 @@ class EmployeeManagementSystem:
         plt.plot(X, y_pred, color='red', label='Predicted')
         plt.xlabel(independent_variable)
         plt.ylabel(target_variable)
-        plt.title('Actual vs. Predicted Values')
+        plt.title('Actual vs. Predicted Values (Linear Regression)')
         plt.legend()
         plt.grid(True)
         plt.show()
@@ -1272,7 +1263,7 @@ class EmployeeManagementSystem:
         plt.plot([y.min(), y.max()], [y.min(), y.max()], 'k--', lw=2, label='Perfect Prediction')
         plt.xlabel('Actual')
         plt.ylabel('Predicted')
-        plt.title('Actual vs. Predicted Values')
+        plt.title('Actual vs. Predicted Values (Multiple Regression)')
         plt.legend()
         plt.grid(True)
         plt.show()
