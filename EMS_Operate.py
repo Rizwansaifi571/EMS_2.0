@@ -14,6 +14,7 @@ import numpy as np
 import pymysql
 from tkinter import Scrollbar
 from sklearn.linear_model import LinearRegression
+# from sklearn.preprocessing import MinMaxScaler
 
 
 class EmployeeManagementSystem:
@@ -1065,7 +1066,6 @@ class EmployeeManagementSystem:
         # Treeview widget to display data
         treeview = ttk.Treeview(main_frame_forecast, show="headings", style="Treeview")
         treeview["columns"] = tuple(data.columns)
-        
 
         # Configure styles for Light and Dark themes
         treeview_style = ttk.Style()
@@ -1230,6 +1230,8 @@ class EmployeeManagementSystem:
 
     def scale_data(self, data, columns, method='standardization'):
         # Extract the column names from the Treeview widget
+        # scalar = MinMaxScaler()                # sir ka kmaal.
+        # scaled_X = scalar.fit_transform(X)  
         treeview_columns = self.treeview["columns"]
 
         # Print out the column names from the Treeview widget and columns in the DataFrame
