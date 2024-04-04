@@ -1120,6 +1120,10 @@ class EmployeeManagementSystem:
         linear_regression_button = tk.Button(menu_frame_forecast, text="Apply Linear Regression", command=self.apply_linear_regression, bg="#273746", fg="#ecf0f1", width=25, height=2)
         linear_regression_button.pack(pady=5)
 
+        # Add button for Multiple regression
+        linear_regression_button = tk.Button(menu_frame_forecast, text="Apply Multiple Regression", command=self.apply_multiple_regression, bg="#273746", fg="#ecf0f1", width=25, height=2)
+        linear_regression_button.pack(pady=5)
+
         button2 = tk.Button(machine_learning_buttons, text="Standardization", command=lambda: self.scale_data(data, columns=self.treeview["columns"], method='standardization'), bg=button_bg, fg=button_fg, width=button_width, height=button_height)
         button2.pack(pady=5)
 
@@ -1159,6 +1163,75 @@ class EmployeeManagementSystem:
             messagebox.showerror("Error", "Selected target variable not found in data.")
             return
 
+        # Get the independent variable (only one column)
+        independent_variable = simpledialog.askstring("Select Variable", "Enter name of the independent variable:")
+        if independent_variable is None:
+            messagebox.showerror("Error", "Please specify the independent variable.")
+            return
+
+        # Check if the independent variable exists in the DataFrame
+        if independent_variable not in self.current_data.columns:
+            messagebox.showerror("Error", "Selected independent variable not found in data.")
+            return
+
+        # Convert categorical columns to numerical values
+        data = self.current_data.copy()  # Create a copy to avoid modifying the original data
+        categorical_cols = data.select_dtypes(include=['object']).columns
+        label_encoders = {}
+        for col in categorical_cols:
+            label_encoders[col] = LabelEncoder()
+            data[col] = label_encoders[col].fit_transform(data[col])
+
+        # Prepare the independent and dependent variables
+        X = data[[independent_variable]]
+        y = data[target_variable]
+
+        # Perform simple linear regression
+        model = LinearRegression()
+        model.fit(X, y)
+
+        # Make predictions
+        y_pred = model.predict(X)
+
+        # Display regression coefficients and R-squared score
+        intercept = model.intercept_
+        coefficient = model.coef_[0]  # Extract the coefficient since there's only one independent variable
+        r_squared = r2_score(y, y_pred)
+        messagebox.showinfo("Linear Regression Results",
+                            f"Intercept: {intercept}\nCoefficient: {coefficient}\nR-squared: {r_squared}")
+
+        # Plot actual vs. predicted values
+        plt.figure(figsize=(8, 6))
+        plt.scatter(X, y, color='blue', label='Actual')
+        plt.plot(X, y_pred, color='red', label='Predicted')
+        plt.xlabel(independent_variable)
+        plt.ylabel(target_variable)
+        plt.title('Actual vs. Predicted Values')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
+        # Optionally, you can return the model if you want to use it for predictions later
+        return model
+
+    
+    def apply_multiple_regression(self):
+        # Check if data is available
+        if self.current_data is None:
+            messagebox.showerror("Error", "No data available for multiple regression.")
+            return
+
+        # Get the target variable from the user
+        target_variable = simpledialog.askstring("Select Variable", "Enter name of the target variable:")
+        if target_variable is None:
+            messagebox.showerror("Error", "Please specify the target variable.")
+            return
+
+        # Check if the target variable exists in the DataFrame
+        if target_variable not in self.current_data.columns:
+            messagebox.showerror("Error", "Selected target variable not found in data.")
+            return
+
         # Get the independent variables (all columns except the target variable)
         independent_variables = [col for col in self.current_data.columns if col != target_variable]
 
@@ -1174,7 +1247,7 @@ class EmployeeManagementSystem:
         X = data[independent_variables]
         y = data[target_variable]
 
-        # Perform linear regression
+        # Perform multiple linear regression
         model = LinearRegression()
         model.fit(X, y)
 
@@ -1185,9 +1258,10 @@ class EmployeeManagementSystem:
         intercept = model.intercept_
         coefficients = model.coef_
         r_squared = r2_score(y, y_pred)
-        messagebox.showinfo("Linear Regression Results", f"Intercept: {intercept}\nCoefficients: {coefficients}\nR-squared: {r_squared}")
+        messagebox.showinfo("Multiple Regression Results",
+                            f"Intercept: {intercept}\nCoefficients: {coefficients}\nR-squared: {r_squared}")
 
-        #Plot actual vs. predicted values
+        # Plot actual vs. predicted values
         plt.figure(figsize=(8, 6))
         plt.scatter(y, y_pred, color='blue', label='Actual vs. Predicted')
         plt.plot([y.min(), y.max()], [y.min(), y.max()], 'k--', lw=2, label='Perfect Prediction')
