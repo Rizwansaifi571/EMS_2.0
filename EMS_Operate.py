@@ -19,6 +19,7 @@ from sklearn.metrics import r2_score
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
+from sklearn.tree import DecisionTreeRegressor
 # from sklearn.preprocessing import MinMaxScaler
 
 
@@ -1131,6 +1132,11 @@ class EmployeeManagementSystem:
         Scalling_button = tk.Button(menu_frame_forecast, text="Apply Scale", command=lambda: self.update_forecast_window(data), bg="#273746", fg="#ecf0f1", width=25, height=2)
         Scalling_button.pack(pady=5)
 
+        # Add button for Decision Tree regression
+        decision_tree_button = tk.Button(menu_frame_forecast, text="Apply Decision Tree", command=self.apply_decision_tree, bg="#273746", fg="#ecf0f1", width=25, height=2)
+        decision_tree_button.pack(pady=5)
+
+
         # Footer Frame
         footer_frame_forecast = tk.Frame(forecast_window, bg="#273746", height=30, bd=1, relief=tk.SOLID)
         footer_frame_forecast.pack(fill=tk.X, side=tk.BOTTOM)
@@ -1362,6 +1368,52 @@ class EmployeeManagementSystem:
 
         return data_copy
 
+
+    def apply_decision_tree(self):
+        # Check if data is available
+        if self.current_data is None:
+            messagebox.showerror("Error", "No data available for decision tree.")
+            return
+
+        # Get the target variable from the user
+        target_variable = simpledialog.askstring("Select Variable", "Enter name of the target variable:")
+        if target_variable is None:
+            messagebox.showerror("Error", "Please specify the target variable.")
+            return
+
+        # Check if the target variable exists in the DataFrame
+        if target_variable not in self.current_data.columns:
+            messagebox.showerror("Error", "Selected target variable not found in data.")
+            return
+
+        # Get the independent variables (all columns except the target variable)
+        independent_variables = [col for col in self.current_data.columns if col != target_variable]
+
+        # Convert categorical columns to numerical values
+        data = self.current_data.copy()  # Create a copy to avoid modifying the original data
+        categorical_cols = data.select_dtypes(include=['object']).columns
+        label_encoders = {}
+        for col in categorical_cols:
+            label_encoders[col] = LabelEncoder()
+            data[col] = label_encoders[col].fit_transform(data[col])
+
+        # Prepare the independent and dependent variables
+        X = data[independent_variables]
+        y = data[target_variable]
+
+        # Perform Decision Tree regression
+        model = DecisionTreeRegressor()
+        model.fit(X, y)
+
+        # Make predictions
+        y_pred = model.predict(X)
+
+        # Display R-squared score
+        r_squared = r2_score(y, y_pred)
+        messagebox.showinfo("Decision Tree Regression Results", f"R-squared: {r_squared}")
+
+        # Optionally, you can return the model if you want to use it for predictions later
+        return model
 
 
 
