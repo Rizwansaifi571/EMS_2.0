@@ -19,7 +19,7 @@ from sklearn.metrics import r2_score
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
-from sklearn.tree import DecisionTreeRegressor
+from sklearn.tree import DecisionTreeRegressor, plot_tree
 # from sklearn.preprocessing import MinMaxScaler
 
 
@@ -1386,9 +1386,6 @@ class EmployeeManagementSystem:
             messagebox.showerror("Error", "Selected target variable not found in data.")
             return
 
-        # Get the independent variables (all columns except the target variable)
-        independent_variables = [col for col in self.current_data.columns if col != target_variable]
-
         # Convert categorical columns to numerical values
         data = self.current_data.copy()  # Create a copy to avoid modifying the original data
         categorical_cols = data.select_dtypes(include=['object']).columns
@@ -1398,7 +1395,7 @@ class EmployeeManagementSystem:
             data[col] = label_encoders[col].fit_transform(data[col])
 
         # Prepare the independent and dependent variables
-        X = data[independent_variables]
+        X = data.drop(columns=[target_variable])
         y = data[target_variable]
 
         # Perform Decision Tree regression
@@ -1412,9 +1409,11 @@ class EmployeeManagementSystem:
         r_squared = r2_score(y, y_pred)
         messagebox.showinfo("Decision Tree Regression Results", f"R-squared: {r_squared}")
 
-        # Optionally, you can return the model if you want to use it for predictions later
-        return model
-
+        # Plot Decision Tree
+        plt.figure(figsize=(12, 8), dpi=130)
+        plot_tree(model, filled=True, feature_names=X.columns)
+        plt.title("Decision Tree Plot")
+        plt.show()
 
 
 
