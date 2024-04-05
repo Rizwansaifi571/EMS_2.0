@@ -20,6 +20,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeRegressor, plot_tree
+from scipy.cluster.hierarchy import dendrogram, linkage
 # from sklearn.preprocessing import MinMaxScaler
 
 
@@ -1132,11 +1133,14 @@ class EmployeeManagementSystem:
         Scalling_button = tk.Button(menu_frame_forecast, text="Apply Scale", command=lambda: self.update_forecast_window(data), bg="#273746", fg="#ecf0f1", width=25, height=2)
         Scalling_button.pack(pady=5)
 
-        # Add button for Decision Tree regression
+        # Add button for Decision Tree
         decision_tree_button = tk.Button(menu_frame_forecast, text="Apply Decision Tree", command=self.apply_decision_tree, bg="#273746", fg="#ecf0f1", width=25, height=2)
         decision_tree_button.pack(pady=5)
 
-
+        # Add button for Hierarchical_clustering
+        Hierarchical_clustering = tk.Button(menu_frame_forecast, text="Apply Hierarchical_clustering", command=self.apply_hierarchical_clustering, bg="#273746", fg="#ecf0f1", width=25, height=2)
+        Hierarchical_clustering.pack(pady=5)
+ 
         # Footer Frame
         footer_frame_forecast = tk.Frame(forecast_window, bg="#273746", height=30, bd=1, relief=tk.SOLID)
         footer_frame_forecast.pack(fill=tk.X, side=tk.BOTTOM)
@@ -1415,7 +1419,30 @@ class EmployeeManagementSystem:
         plt.title("Decision Tree Plot")
         plt.show()
 
+    def apply_hierarchical_clustering(self):
+        # Check if data is available
+        if self.current_data is None:
+            messagebox.showerror("Error", "No data available for hierarchical clustering.")
+            return
 
+        # Convert categorical columns to numerical values
+        data = self.current_data.copy()  # Create a copy to avoid modifying the original data
+        categorical_cols = data.select_dtypes(include=['object']).columns
+        label_encoders = {}
+        for col in categorical_cols:
+            label_encoders[col] = LabelEncoder()
+            data[col] = label_encoders[col].fit_transform(data[col])
+
+        # Compute linkage matrix
+        linkage_matrix = linkage(data, method='ward')
+
+        # Plot dendrogram
+        plt.figure(figsize=(15, 10))
+        dendrogram(linkage_matrix)
+        plt.title("Hierarchical Clustering Dendrogram")
+        plt.xlabel("Sample Index")
+        plt.ylabel("Distance")
+        plt.show()
 
 
 
