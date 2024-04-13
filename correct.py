@@ -20,6 +20,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeRegressor, plot_tree
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 # from sklearn.preprocessing import MinMaxScaler
 
 
@@ -1136,6 +1137,11 @@ class EmployeeManagementSystem:
         decision_tree_button = tk.Button(menu_frame_forecast, text="Apply Decision Tree", command=self.apply_decision_tree, bg="#273746", fg="#ecf0f1", width=25, height=2)
         decision_tree_button.pack(pady=5)
 
+        # Add button for Confusion Matrix
+        confusion_matrix_button = tk.Button(menu_frame_forecast, text="Apply Confusion Matrix", command=self.apply_confusion_matrix, bg="#273746", fg="#ecf0f1", width=25, height=2)
+        confusion_matrix_button.pack(pady=5)
+
+
 
         # Footer Frame
         footer_frame_forecast = tk.Frame(forecast_window, bg="#273746", height=30, bd=1, relief=tk.SOLID)
@@ -1413,6 +1419,52 @@ class EmployeeManagementSystem:
         plt.figure(figsize=(12, 8), dpi=130)
         plot_tree(model, filled=True, feature_names=X.columns)
         plt.title("Decision Tree Plot")
+        plt.show()
+
+    
+    def apply_confusion_matrix(self):
+        # Check if data is available
+        if self.current_data is None:
+            messagebox.showerror("Error", "No data available for confusion matrix.")
+            return
+
+        # Get the target variable from the user
+        target_variable = simpledialog.askstring("Select Variable", "Enter name of the target variable:")
+        if target_variable is None:
+            messagebox.showerror("Error", "Please specify the target variable.")
+            return
+
+        # Check if the target variable exists in the DataFrame
+        if target_variable not in self.current_data.columns:
+            messagebox.showerror("Error", f"Selected target variable '{target_variable}' not found in data.")
+            return
+
+        # Prepare the column names for the actual and predicted values
+        actual_column = target_variable
+        predicted_column = f"{target_variable}_predicted"
+
+        # Retrieve the actual and predicted values
+        data = self.current_data
+        y_actual = data[actual_column]
+        
+        # Print the columns to debug
+        print("Columns in DataFrame:")
+        print(data.columns)
+        
+        # Check if the predicted column exists in the DataFrame
+        if predicted_column not in data.columns:
+            messagebox.showerror("Error", f"Predicted column '{predicted_column}' not found in data.")
+            return
+        
+        y_pred = data[predicted_column]
+
+        # Compute confusion matrix
+        confusion_matrix = pd.crosstab(y_actual, y_pred)
+
+        # Display the confusion matrix
+        cm_display = ConfusionMatrixDisplay(confusion_matrix)
+        cm_display.plot()
+        plt.title("Confusion Matrix")
         plt.show()
 
 
