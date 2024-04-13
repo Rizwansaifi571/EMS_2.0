@@ -20,7 +20,7 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.tree import DecisionTreeRegressor, plot_tree
-from scipy.cluster.hierarchy import dendrogram, linkage
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 # from sklearn.preprocessing import MinMaxScaler
 
 
@@ -1133,14 +1133,16 @@ class EmployeeManagementSystem:
         Scalling_button = tk.Button(menu_frame_forecast, text="Apply Scale", command=lambda: self.update_forecast_window(data), bg="#273746", fg="#ecf0f1", width=25, height=2)
         Scalling_button.pack(pady=5)
 
-        # Add button for Decision Tree
+        # Add button for Decision Tree regression
         decision_tree_button = tk.Button(menu_frame_forecast, text="Apply Decision Tree", command=self.apply_decision_tree, bg="#273746", fg="#ecf0f1", width=25, height=2)
         decision_tree_button.pack(pady=5)
 
-        # Add button for Hierarchical_clustering
-        Hierarchical_clustering = tk.Button(menu_frame_forecast, text="Apply Hierarchical_clustering", command=self.apply_hierarchical_clustering, bg="#273746", fg="#ecf0f1", width=25, height=2)
-        Hierarchical_clustering.pack(pady=5)
- 
+        # Add button for Confusion Matrix
+        confusion_matrix_button = tk.Button(menu_frame_forecast, text="Apply Confusion Matrix", command=self.apply_confusion_matrix, bg="#273746", fg="#ecf0f1", width=25, height=2)
+        confusion_matrix_button.pack(pady=5)
+
+
+
         # Footer Frame
         footer_frame_forecast = tk.Frame(forecast_window, bg="#273746", height=30, bd=1, relief=tk.SOLID)
         footer_frame_forecast.pack(fill=tk.X, side=tk.BOTTOM)
@@ -1419,30 +1421,53 @@ class EmployeeManagementSystem:
         plt.title("Decision Tree Plot")
         plt.show()
 
-    def apply_hierarchical_clustering(self):
+    
+    def apply_confusion_matrix(self):
         # Check if data is available
         if self.current_data is None:
-            messagebox.showerror("Error", "No data available for hierarchical clustering.")
+            messagebox.showerror("Error", "No data available for confusion matrix.")
             return
 
-        # Convert categorical columns to numerical values
-        data = self.current_data.copy()  # Create a copy to avoid modifying the original data
-        categorical_cols = data.select_dtypes(include=['object']).columns
-        label_encoders = {}
-        for col in categorical_cols:
-            label_encoders[col] = LabelEncoder()
-            data[col] = label_encoders[col].fit_transform(data[col])
+        # Get the target variable from the user
+        target_variable = simpledialog.askstring("Select Variable", "Enter name of the target variable:")
+        if target_variable is None:
+            messagebox.showerror("Error", "Please specify the target variable.")
+            return
 
-        # Compute linkage matrix
-        linkage_matrix = linkage(data, method='ward')
+        # Check if the target variable exists in the DataFrame
+        if target_variable not in self.current_data.columns:
+            messagebox.showerror("Error", f"Selected target variable '{target_variable}' not found in data.")
+            return
 
-        # Plot dendrogram
-        plt.figure(figsize=(15, 10))
-        dendrogram(linkage_matrix)
-        plt.title("Hierarchical Clustering Dendrogram")
-        plt.xlabel("Sample Index")
-        plt.ylabel("Distance")
+        # Prepare the column names for the actual and predicted values
+        actual_column = target_variable
+        predicted_column = f"{target_variable}_predicted"
+
+        # Retrieve the actual and predicted values
+        data = self.current_data
+        y_actual = data[actual_column]
+        
+        # Print the columns to debug
+        print("Columns in DataFrame:")
+        print(data.columns)
+        
+        # Check if the predicted column exists in the DataFrame
+        if predicted_column not in data.columns:
+            messagebox.showerror("Error", f"Predicted column '{predicted_column}' not found in data.")
+            return
+        
+        y_pred = data[predicted_column]
+
+        # Compute confusion matrix
+        confusion_matrix = pd.crosstab(y_actual, y_pred)
+
+        # Display the confusion matrix
+        cm_display = ConfusionMatrixDisplay(confusion_matrix)
+        cm_display.plot()
+        plt.title("Confusion Matrix")
         plt.show()
+
+
 
 
 
